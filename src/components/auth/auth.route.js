@@ -2,6 +2,7 @@ import express from "express";
 import authController from "./auth.controller.js";
 import authValidation from "./auth.validation.js";
 import validation from "../../middleware/validation.js";
+import auth from "../../middleware/auth.js";
 
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.post(
   validation.validate(authValidation.userLoginValidate),
   authController.loginUser
 );
+router.post("/logout", auth.userAuthenticate, authController.logoutUser);
 
 export default router;

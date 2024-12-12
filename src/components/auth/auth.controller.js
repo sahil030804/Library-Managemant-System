@@ -17,5 +17,13 @@ const loginUser = async (req, res, next) => {
     next(error);
   }
 };
+const logoutUser = async (req, res, next) => {
+  try {
+    const loggedOut = await authService.logoutUser(req, res);
+    res.status(200).json(loggedOut);
+  } catch (error) {
+    next(error);
+  }
+};
 
-export default { registerUser, loginUser };
+export default { registerUser, loginUser, logoutUser };

@@ -72,4 +72,25 @@ const loginUser = async (reqBody) => {
   }
 };
 
-export default { registerUser, loginUser };
+const logoutUser = async (req, res) => {
+  try {
+    const userFound = await user.findOne(req.user.email);
+    req.session.destroy((err) => {
+      if (err) {
+        const error = new Error(err.message);
+        throw error;
+      }
+    });
+
+    userFound.refreshToken = null;
+    await userFound.save();
+
+    res.clearCookie("connect.sid");
+    return { message: "User logged out successfully" };
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+
+export default { registerUser, loginUser, logoutUser };
