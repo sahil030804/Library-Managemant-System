@@ -9,6 +9,7 @@ dotenv.config({
 const env = {
   server: {
     PORT: process.env.PORT,
+    SESSION_SECRET_KEY: process.env.SESSION_SECRET_KEY,
   },
   db: {
     DB_URL: process.env.DB_URL,

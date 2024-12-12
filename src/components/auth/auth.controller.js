@@ -11,6 +11,7 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
   try {
     const tokenData = await authService.loginUser(req.body);
+    req.session.token = tokenData.accessToken;
     res.status(200).json(tokenData);
   } catch (error) {
     next(error);

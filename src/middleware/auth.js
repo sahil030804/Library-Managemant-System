@@ -1,13 +1,55 @@
-const validate = (schema) => {
-  return async (req, res, next) => {
-    try {
-      await schema.validateAsync(req.body, { abortEarly: false });
-      next();
-    } catch (error) {
-      const errorMessage = await error.details.map((detail) => detail.message);
-      res.status(400).json({ error: errorMessage });
+import jwt from "jsonwebtoken";
+import env from "../../config.js";
+
+const userAuthenticate = async (req, res, next) => {
+  let incomingAccessToken;
+  const authToken = req.headers["authorization"];
+
+  if (authToken && authToken.startsWith("Bearer ")) {
+    incomingAccessToken = authToken.split(" ")[1];
+  }
+
+  try {
+    if (!incomingAccessToken) {
+      const error = new Error("ACCESS_TOKEN_MISSING");
+      return next(error);
     }
-  };
+
+    jwt.verify(
+      incomingAccessToken,
+      env.jwt.ACCESS_TOKEN_KEY,
+      (err, decodedToken) => {
+        if (err) {
+          const error = new Error("ACCESS_DENIED");
+          return next(error);
+        }
+        req.user = decodedToken;
+        next();
+      }
+    );
+  } catch (err) {
+    if (err.name === "JsonWebTokenError") {
+      const error = new Error("TOKEN_INVALID");
+      return next(error);
+    }
+
+    if (err.name === "TokenExpiredError") {
+      const error = new Error("ACCESS_TOKEN_EXPIRED");
+      return next(error);
+    }
+
+    const error = new Error(err.message);
+    return next(error);
+  }
 };
 
-export default { validate };
+const accessRole = (role) => {
+  return async (req, res, next) => {
+    if (!role.includes(req.user.role)) {
+      const error = new Error("USER_UNAUTHORIZED");
+      return next(error);
+    }
+    next();
+  };
+};
+export default { userAuthenticate, accessRole };
