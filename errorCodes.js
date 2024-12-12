@@ -97,6 +97,13 @@ const errorCodes = {
       message: "Access denied. Please log in",
     },
   },
+  USER_UNAUTHORIZED: {
+    httpStatusCode: 403,
+    body: {
+      code: "user_unthorized",
+      message: "User role is unauthorized",
+    },
+  },
 };
 
 export default errorCodes;
