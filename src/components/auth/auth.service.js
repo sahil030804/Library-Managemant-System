@@ -41,4 +41,35 @@ const registerUser = async (reqBody) => {
   }
 };
 
-export default { registerUser };
+const loginUser = async (reqBody) => {
+  const { email, password } = reqBody;
+
+  try {
+    const userFound = await user.findOne({ email });
+
+    if (!userFound) {
+      const error = new Error("USER_NOT_FOUND");
+      throw error;
+    }
+
+    if (!helper.decryptPassword(password, userFound.password)) {
+      const error = new Error("INVALID_PASSWORD");
+      throw error;
+    }
+
+    const accessAndRefreshToken = await helper.generateAccessAndRefreshToken(
+      userFound._id,
+      userFound.role
+    );
+
+    return {
+      accessToken: accessAndRefreshToken.accessToken,
+      refreshToken: accessAndRefreshToken.refreshToken,
+    };
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+
+export default { registerUser, loginUser };

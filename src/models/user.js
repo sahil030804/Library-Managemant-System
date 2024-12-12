@@ -43,6 +43,9 @@ const userSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
     },
+    refreshToken: {
+      type: String,
+    },
   },
   { versionKey: false }
 );
