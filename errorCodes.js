@@ -104,6 +104,13 @@ const errorCodes = {
       message: "User role is unauthorized",
     },
   },
+  CURRENT_PASSWORD: {
+    httpStatusCode: 400,
+    body: {
+      code: "old_password",
+      message: "This is your old password",
+    },
+  },
 };
 
 export default errorCodes;

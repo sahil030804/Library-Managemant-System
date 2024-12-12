@@ -93,4 +93,31 @@ const logoutUser = async (req, res) => {
   }
 };
 
-export default { registerUser, loginUser, logoutUser };
+const resetPassword = async (reqBody) => {
+  const { email, password } = reqBody;
+  try {
+    const userFound = await user.findOne({ email });
+
+    if (!userFound) {
+      const error = new Error("USER_NOT_FOUND");
+      throw error;
+    }
+
+    if (helper.decryptPassword(password, userFound.password)) {
+      const error = new Error("CURRENT_PASSWORD");
+      throw error;
+    }
+
+    const hashedPassword = helper.encryptPassword(password);
+
+    await user.findByIdAndUpdate(userFound._id, {
+      password: hashedPassword,
+    });
+
+    return { message: "Password reseted successfully" };
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default { registerUser, loginUser, logoutUser, resetPassword };
