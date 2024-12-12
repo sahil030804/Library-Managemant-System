@@ -8,5 +8,13 @@ const registerUser = async (req, res, next) => {
     next(error);
   }
 };
+const loginUser = async (req, res, next) => {
+  try {
+    const tokenData = await authService.loginUser(req.body);
+    res.status(200).json(tokenData);
+  } catch (error) {
+    next(error);
+  }
+};
 
-export default { registerUser };
+export default { registerUser, loginUser };
