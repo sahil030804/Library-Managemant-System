@@ -14,11 +14,11 @@ router.post(
   bookController.addBook
 );
 
-router.post(
+router.put(
   "/books/:id",
   auth.userAuthenticate,
   auth.accessRole(["admin"]),
-  validation.validate(bookValidation.updateBookValidate),
+  validation.validate(bookValidation.addBookValidate),
   bookController.updateBook
 );
 
