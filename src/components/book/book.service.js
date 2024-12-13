@@ -98,4 +98,28 @@ const updateBook = async (req) => {
   return { bookFound };
 };
 
-export default { addBook, updateBook };
+const removeBook = async (req) => {
+  const bookId = req.params.id;
+  console.log(bookId);
+
+  try {
+    const bookFound = await book.findById(bookId);
+    if (!bookFound) {
+      const error = new Error("BOOK_NOT_FOUND");
+      throw error;
+    }
+    const bookDeleted = await book.deleteOne({ _id: bookId });
+    console.log(bookDeleted);
+
+    if (!bookDeleted.deletedCount == 1) {
+      const error = new Error("BOOK_NOT_DELETE");
+      throw error;
+    }
+
+    return { message: "Book Removed Successfully" };
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default { addBook, updateBook, removeBook };
