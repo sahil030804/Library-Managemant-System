@@ -36,6 +36,7 @@ const addBook = async (reqBody) => {
     const bookData = await data.save();
 
     const bookDetail = {
+      id: bookData._id,
       title: bookData.title,
       authors: bookData.authors,
       ISBN: bookData.ISBN,
