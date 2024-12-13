@@ -20,4 +20,14 @@ const updateBook = async (req, res, next) => {
   }
 };
 
-export default { addBook, updateBook };
+const RemoveBook = async (req, res, next) => {
+  try {
+    const bookDelete = await bookService.removeBook(req);
+    res.status(201).json(bookDelete);
+  } catch (err) {
+    const error = new Error(err.message);
+    next(error);
+  }
+};
+
+export default { addBook, updateBook, RemoveBook };

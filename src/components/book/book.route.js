@@ -22,4 +22,11 @@ router.post(
   bookController.updateBook
 );
 
+router.delete(
+  "/books/:id",
+  auth.userAuthenticate,
+  auth.accessRole(["admin"]),
+  bookController.RemoveBook
+);
+
 export default router;

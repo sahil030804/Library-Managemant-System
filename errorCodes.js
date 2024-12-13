@@ -125,6 +125,13 @@ const errorCodes = {
       message: "Book already exist",
     },
   },
+  BOOK_NOT_DELETE: {
+    httpStatusCode: 400,
+    body: {
+      code: "book_not_deleted",
+      message: "error occured in book delete process",
+    },
+  },
 };
 
 export default errorCodes;
