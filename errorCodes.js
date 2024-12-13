@@ -98,10 +98,10 @@ const errorCodes = {
     },
   },
   USER_UNAUTHORIZED: {
-    httpStatusCode: 403,
+    httpStatusCode: 401,
     body: {
       code: "user_unthorized",
-      message: "User role is unauthorized",
+      message: "User is unauthorized",
     },
   },
   CURRENT_PASSWORD: {

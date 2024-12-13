@@ -28,6 +28,18 @@ const userRegisterValidate = Joi.object({
     "any.required": "name must be required",
   }),
 });
+const resetPasswordValidate = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.empty": "Email id can't be not null",
+    "any.required": "Email id must be required",
+  }),
+  new_password: Joi.string().required().min(6).max(18).messages({
+    "string.empty": "Password can't be not null",
+    "any.required": "Password must be required",
+    "string.min": "Password must be 6 character long",
+    "string.max": "Password must be 18 character long",
+  }),
+});
 const userLoginValidate = Joi.object({
   email: Joi.string().email().required().messages({
     "string.empty": "Email id can't be not null",
@@ -41,4 +53,8 @@ const userLoginValidate = Joi.object({
   }),
 });
 
-export default { userRegisterValidate, userLoginValidate };
+export default {
+  userRegisterValidate,
+  userLoginValidate,
+  resetPasswordValidate,
+};
