@@ -10,4 +10,14 @@ const addBook = async (req, res, next) => {
   }
 };
 
-export default { addBook };
+const updateBook = async (req, res, next) => {
+  try {
+    const bookDetail = await bookService.updateBook(req);
+    res.status(201).json(bookDetail);
+  } catch (err) {
+    const error = new Error(err.message);
+    next(error);
+  }
+};
+
+export default { addBook, updateBook };

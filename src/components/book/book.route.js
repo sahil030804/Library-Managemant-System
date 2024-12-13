@@ -14,4 +14,12 @@ router.post(
   bookController.addBook
 );
 
+router.post(
+  "/books/:id",
+  auth.userAuthenticate,
+  auth.accessRole(["admin"]),
+  validation.validate(bookValidation.updateBookValidate),
+  bookController.updateBook
+);
+
 export default router;

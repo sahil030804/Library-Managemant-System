@@ -53,4 +53,49 @@ const addBook = async (reqBody) => {
   }
 };
 
-export default { addBook };
+const updateBook = async (req) => {
+  const bookId = req.params.id;
+  const {
+    title,
+    authors,
+    ISBN,
+    category,
+    publicationYear,
+    totalCopies,
+    shelfNumber,
+  } = req.body;
+
+  let bookFound = await book.findById(bookId);
+
+  if (!bookFound) {
+    const error = new Error("BOOK_NOT_FOUND");
+    throw error;
+  }
+
+  if (title) {
+    bookFound.title = title;
+  }
+  if (authors) {
+    bookFound.authors = authors;
+  }
+  if (ISBN) {
+    bookFound.ISBN = ISBN;
+  }
+  if (category) {
+    bookFound.category = category;
+  }
+  if (publicationYear) {
+    bookFound.publicationYear = publicationYear;
+  }
+  if (totalCopies) {
+    bookFound.totalCopies = totalCopies;
+  }
+  if (shelfNumber) {
+    bookFound.shelfNumber = shelfNumber;
+  }
+
+  await bookFound.save();
+  return { bookFound };
+};
+
+export default { addBook, updateBook };
