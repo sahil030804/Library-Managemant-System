@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import env from "../../config.js";
+import auth from "../config/auth.js";
 
 const userAuthenticate = async (req, res, next) => {
   let incomingAccessToken;
@@ -17,7 +17,7 @@ const userAuthenticate = async (req, res, next) => {
 
     jwt.verify(
       incomingAccessToken,
-      env.jwt.ACCESS_TOKEN_KEY,
+      auth.jwt.ACCESS_TOKEN_KEY,
       (err, decodedToken) => {
         if (err) {
           const error = new Error("ACCESS_DENIED");
