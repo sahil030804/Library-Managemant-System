@@ -2,7 +2,7 @@ import user from "../models/user.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import env from "../../config.js";
+import auth from "../config/auth.js";
 
 const emailExistingCheck = async (email) => {
   const countEmailExisting = await user.countDocuments({ email });
@@ -34,13 +34,13 @@ const generateAccessAndRefreshToken = async (userId, role) => {
   try {
     const accessToken = jwt.sign(
       { _id: userId, role: role },
-      env.jwt.ACCESS_TOKEN_KEY,
-      { expiresIn: env.jwt.ACCESS_TOKEN_EXPIRY }
+      auth.jwt.ACCESS_TOKEN_KEY,
+      { expiresIn: auth.jwt.ACCESS_TOKEN_EXPIRY }
     );
     const refreshToken = jwt.sign(
       { _id: userId, role: role },
-      env.jwt.REFRESH_TOKEN_KEY,
-      { expiresIn: env.jwt.REFRESH_TOKEN_EXPIRY }
+      auth.jwt.REFRESH_TOKEN_KEY,
+      { expiresIn: auth.jwt.REFRESH_TOKEN_EXPIRY }
     );
 
     const userFound = await user.findOne(userId);
