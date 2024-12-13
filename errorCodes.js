@@ -111,6 +111,20 @@ const errorCodes = {
       message: "This is your old password",
     },
   },
+  BOOK_NOT_FOUND: {
+    httpStatusCode: 400,
+    body: {
+      code: "book_not_found",
+      message: "Book not found",
+    },
+  },
+  BOOK_EXIST: {
+    httpStatusCode: 400,
+    body: {
+      code: "book_already_exist",
+      message: "Book already exist",
+    },
+  },
 };
 
 export default errorCodes;
