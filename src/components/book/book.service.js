@@ -66,51 +66,47 @@ const updateBook = async (req) => {
     shelfNumber,
   } = req.body;
 
-  let bookFound = await book.findById(bookId);
-
+  if (bookId.length !== 24) {
+    const error = new Error("INVALID_BOOK_ID");
+    throw error;
+  }
+  const bookFound = await book.findById(bookId);
   if (!bookFound) {
     const error = new Error("BOOK_NOT_FOUND");
     throw error;
   }
 
-  if (title) {
-    bookFound.title = title;
-  }
-  if (authors) {
-    bookFound.authors = authors;
-  }
-  if (ISBN) {
-    bookFound.ISBN = ISBN;
-  }
-  if (category) {
-    bookFound.category = category;
-  }
-  if (publicationYear) {
-    bookFound.publicationYear = publicationYear;
-  }
-  if (totalCopies) {
-    bookFound.totalCopies = totalCopies;
-  }
-  if (shelfNumber) {
-    bookFound.shelfNumber = shelfNumber;
-  }
+  const updatedBook = await book.findByIdAndUpdate(
+    bookId,
+    {
+      title,
+      authors: authors.split(","),
+      ISBN,
+      category,
+      publicationYear,
+      totalCopies,
+      shelfNumber,
+    },
+    { new: true }
+  );
 
-  await bookFound.save();
-  return { bookFound };
+  return { updatedBookInfo: updatedBook };
 };
 
 const removeBook = async (req) => {
   const bookId = req.params.id;
-  console.log(bookId);
 
   try {
+    if (bookId.length !== 24) {
+      const error = new Error("INVALID_BOOK_ID");
+      throw error;
+    }
     const bookFound = await book.findById(bookId);
     if (!bookFound) {
       const error = new Error("BOOK_NOT_FOUND");
       throw error;
     }
     const bookDeleted = await book.deleteOne({ _id: bookId });
-    console.log(bookDeleted);
 
     if (!bookDeleted.deletedCount == 1) {
       const error = new Error("BOOK_NOT_DELETE");

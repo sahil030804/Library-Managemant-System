@@ -132,6 +132,13 @@ const errorCodes = {
       message: "error occured in book delete process",
     },
   },
+  INVALID_BOOK_ID: {
+    httpStatusCode: 400,
+    body: {
+      code: "book_not_invalid",
+      message: "Book id is invalid",
+    },
+  },
 };
 
 export default errorCodes;
