@@ -61,8 +61,13 @@ const loginUser = async (reqBody) => {
       userFound._id,
       userFound.role
     );
-
+    const userDetail = {
+      name: userFound.name,
+      email: userFound.email,
+      role: userFound.role,
+    };
     return {
+      userDetail,
       accessToken: accessAndRefreshToken.accessToken,
       refreshToken: accessAndRefreshToken.refreshToken,
     };
