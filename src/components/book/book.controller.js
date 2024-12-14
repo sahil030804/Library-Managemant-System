@@ -29,5 +29,14 @@ const RemoveBook = async (req, res, next) => {
     next(error);
   }
 };
+const getAllbooks = async (req, res, next) => {
+  try {
+    const allBooks = await bookService.getAllBooks();
+    res.status(201).json(allBooks);
+  } catch (err) {
+    const error = new Error(err.message);
+    next(error);
+  }
+};
 
-export default { addBook, updateBook, RemoveBook };
+export default { addBook, updateBook, RemoveBook, getAllbooks };

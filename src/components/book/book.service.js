@@ -121,4 +121,18 @@ const removeBook = async (req) => {
     throw error;
   }
 };
-export default { addBook, updateBook, removeBook };
+
+const getAllBooks = async () => {
+  try {
+    const allBooks = await book.find();
+    if (allBooks.length === 0) {
+      const error = new Error("EMPTY_BOOK_DB");
+      throw error;  
+    }
+    return { allBooks };
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default { addBook, updateBook, removeBook, getAllBooks };

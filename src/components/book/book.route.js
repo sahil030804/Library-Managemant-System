@@ -29,4 +29,11 @@ router.delete(
   bookController.RemoveBook
 );
 
+router.get(
+  "/books",
+  auth.userAuthenticate,
+  auth.accessRole(["admin", "member"]),
+  bookController.getAllbooks
+);
+
 export default router;

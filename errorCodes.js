@@ -139,6 +139,13 @@ const errorCodes = {
       message: "Book id is invalid",
     },
   },
+  EMPTY_BOOK_DB: {
+    httpStatusCode: 404,
+    body: {
+      code: "no_books_in_db",
+      message: "No books found in the database.",
+    },
+  },
 };
 
 export default errorCodes;
