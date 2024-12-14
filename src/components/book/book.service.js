@@ -31,6 +31,7 @@ const addBook = async (reqBody) => {
       availableCopies: totalCopies,
       shelfNumber,
       addedAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
     });
 
     const bookData = await data.save();
@@ -86,6 +87,7 @@ const updateBook = async (req) => {
       publicationYear,
       totalCopies,
       shelfNumber,
+      lastUpdated: new Date().toISOString(),
     },
     { new: true }
   );
