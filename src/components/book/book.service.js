@@ -127,7 +127,7 @@ const getAllBooks = async () => {
     const allBooks = await book.find();
     if (allBooks.length === 0) {
       const error = new Error("EMPTY_BOOK_DB");
-      throw error;  
+      throw error;
     }
     return { allBooks };
   } catch (err) {
@@ -135,4 +135,23 @@ const getAllBooks = async () => {
     throw error;
   }
 };
-export default { addBook, updateBook, removeBook, getAllBooks };
+
+const getSingleBook = async (req) => {
+  const bookId = req.params.id;
+  try {
+    if (bookId.length !== 24) {
+      const error = new Error("INVALID_BOOK_ID");
+      throw error;
+    }
+    const bookFound = await book.findById(bookId);
+    if (!bookFound) {
+      const error = new Error("BOOK_NOT_FOUND");
+      throw error;
+    }
+    return bookFound;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default { addBook, updateBook, removeBook, getAllBooks, getSingleBook };

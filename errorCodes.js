@@ -112,7 +112,7 @@ const errorCodes = {
     },
   },
   BOOK_NOT_FOUND: {
-    httpStatusCode: 400,
+    httpStatusCode: 404,
     body: {
       code: "book_not_found",
       message: "Book not found",
