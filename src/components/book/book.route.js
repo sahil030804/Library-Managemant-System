@@ -31,14 +31,10 @@ router.delete(
 
 router.get(
   "/books",
-  auth.userAuthenticate,
-  auth.accessRole(["admin", "member"]),
   bookController.getAllbooks
 );
 router.get(
   "/books/:id",
-  auth.userAuthenticate,
-  auth.accessRole(["admin", "member"]),
   bookController.getSinglebook
 );
 
