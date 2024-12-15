@@ -35,5 +35,11 @@ router.get(
   auth.accessRole(["admin", "member"]),
   bookController.getAllbooks
 );
+router.get(
+  "/books/:id",
+  auth.userAuthenticate,
+  auth.accessRole(["admin", "member"]),
+  bookController.getSinglebook
+);
 
 export default router;
