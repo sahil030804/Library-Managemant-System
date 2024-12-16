@@ -13,4 +13,11 @@ router.post(
   memberController.addMember
 );
 
+router.get(
+  "/members",
+  auth.userAuthenticate,
+  auth.accessRole(["admin"]),
+  memberController.allMembers
+);
+
 export default router;

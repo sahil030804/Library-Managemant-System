@@ -62,4 +62,32 @@ const addMember = async (reqBody) => {
   }
 };
 
-export default { addMember };
+const allMembers = async () => {
+  try {
+    const allMembers = await user.find();
+
+    if (allMembers.length === 0) {
+      const error = new Error("NO_MEMBER_FOUND");
+      throw error;
+    }
+
+    const members = allMembers.map((member) => {
+      return {
+        name: member.name,
+        email: member.email,
+        phone: member.phone,
+        address: member.address,
+        role: member.role,
+        membershipId: member.membershipId,
+        status: member.status,
+        createdAt: member.createdAt,
+      };
+    });
+    return members;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+
+export default { addMember, allMembers };
