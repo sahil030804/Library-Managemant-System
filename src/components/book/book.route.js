@@ -29,13 +29,8 @@ router.delete(
   bookController.RemoveBook
 );
 
-router.get(
-  "/books",
-  bookController.getAllbooks
-);
-router.get(
-  "/books/:id",
-  bookController.getSinglebook
-);
+router.get("/books/search", bookController.searchBook);
+router.get("/books", bookController.getAllbooks);
+router.get("/books/:id", bookController.getSinglebook);
 
 export default router;
