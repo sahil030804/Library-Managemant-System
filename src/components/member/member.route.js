@@ -19,5 +19,11 @@ router.get(
   auth.accessRole(["admin"]),
   memberController.allMembers
 );
+router.get(
+  "/members/:id",
+  auth.userAuthenticate,
+  auth.accessRole(["admin"]),
+  memberController.singleMember
+);
 
 export default router;
