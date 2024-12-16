@@ -153,6 +153,13 @@ const errorCodes = {
       message: "Password and Confirm password are not same",
     },
   },
+  NO_MEMBER_FOUND: {
+    httpStatusCode: 404,
+    body: {
+      code: "no_members_found",
+      message: "No members found in DB",
+    },
+  },
 };
 
 export default errorCodes;
