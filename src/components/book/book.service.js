@@ -154,4 +154,38 @@ const getSingleBook = async (req) => {
     throw error;
   }
 };
-export default { addBook, updateBook, removeBook, getAllBooks, getSingleBook };
+
+const searchBook = async (req) => {
+  const query = req.query.q;
+
+  try {
+    if (query) {
+      const bookFound = await book.find({
+        $or: [
+          { title: { $regex: query, $options: "i" } },
+          { authors: { $regex: query, $options: "i" } },
+          { category: { $regex: query, $options: "i" } },
+        ],
+      });
+
+      if (bookFound.length === 0) {
+        const error = new Error("BOOK_NOT_FOUND");
+        throw error;
+      }
+
+      return bookFound;
+    }
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+
+export default {
+  addBook,
+  updateBook,
+  removeBook,
+  getAllBooks,
+  getSingleBook,
+  searchBook,
+};

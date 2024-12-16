@@ -48,4 +48,21 @@ const getSinglebook = async (req, res, next) => {
   }
 };
 
-export default { addBook, updateBook, RemoveBook, getAllbooks, getSinglebook };
+const searchBook = async (req, res, next) => {
+  try {
+    const searchedBooks = await bookService.searchBook(req);
+    res.status(200).json({ SearchedBooks: searchedBooks });
+  } catch (err) {
+    const error = new Error(err.message);
+    next(error);
+  }
+};
+
+export default {
+  addBook,
+  updateBook,
+  RemoveBook,
+  getAllbooks,
+  getSinglebook,
+  searchBook,
+};
