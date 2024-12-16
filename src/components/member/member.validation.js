@@ -42,5 +42,35 @@ const memberRegisterValidate = Joi.object({
     "any.required": "Status must be required",
   }),
 });
+const memberUpdateValidate = Joi.object({
+  name: Joi.string().required().messages({
+    "string.empty": "Name can't be null",
+    "any.required": "name must be required",
+  }),
+  email: Joi.string().email().required().messages({
+    "string.empty": "Email id can't be null",
+    "any.required": "Email id must be required",
+  }),
+  phone: Joi.string()
+    .required()
+    .pattern(/^[0-9]{10}$/)
+    .messages({
+      "String.empty": "Phone number can't be null",
+      "any.required": "Phone number must be required",
+      "string.pattern.base": "Phone number must be exactly 10 digits.",
+    }),
+  address: Joi.string().required().messages({
+    "string.empty": "Name can't be null",
+    "any.required": "name must be required",
+  }),
+  role: Joi.string().empty().required().messages({
+    "string.empty": "Role can't be null",
+    "any.required": "Role must be required",
+  }),
+  status: Joi.string().empty().required().messages({
+    "string.empty": "Status can't be null",
+    "any.required": "Status must be required",
+  }),
+});
 
-export default memberRegisterValidate;
+export default { memberRegisterValidate, memberUpdateValidate };

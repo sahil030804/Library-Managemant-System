@@ -121,4 +121,63 @@ const singleMember = async (req) => {
     throw error;
   }
 };
-export default { addMember, allMembers, singleMember };
+
+const updateMember = async (req) => {
+  const memberId = req.params.id;
+  const { name, email, phone, address, role, status } = req.body;
+  try {
+    if (memberId.length !== 24) {
+      const error = new Error("INVALID_MEMBER_ID");
+      throw error;
+    }
+
+    const memberFound = await user.findById(memberId);
+    if (!memberFound) {
+      const error = new Error("NO_MEMBER_FOUND");
+      throw error;
+    }
+
+    let updateMember;
+    if (req.user.role == "admin") {
+      updateMember = await user.findByIdAndUpdate(
+        memberId,
+        {
+          name: name,
+          email: email,
+          phone: phone,
+          address: address,
+          role: role,
+          status: status,
+        },
+        { new: true }
+      );
+    }
+    if (req.user.role == "member") {
+      updateMember = await user.findByIdAndUpdate(
+        memberId,
+        {
+          name: name,
+          email: email,
+          phone: phone,
+          address: address,
+        },
+        { new: true }
+      );
+    }
+    const updatedMember = {
+      _id: updateMember._id,
+      name: updateMember.name,
+      email: updateMember.email,
+      phone: updateMember.phone,
+      address: updateMember.address,
+      role: updateMember.role,
+      membershipId: updateMember.membershipId,
+      status: updateMember.status,
+    };
+    return updatedMember;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default { addMember, allMembers, singleMember, updateMember };
