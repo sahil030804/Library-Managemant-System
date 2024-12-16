@@ -13,7 +13,7 @@ const addBook = async (req, res, next) => {
 const updateBook = async (req, res, next) => {
   try {
     const bookDetail = await bookService.updateBook(req);
-    res.status(201).json(bookDetail);
+    res.status(200).json(bookDetail);
   } catch (err) {
     const error = new Error(err.message);
     next(error);
@@ -23,7 +23,7 @@ const updateBook = async (req, res, next) => {
 const RemoveBook = async (req, res, next) => {
   try {
     const bookDelete = await bookService.removeBook(req);
-    res.status(201).json(bookDelete);
+    res.status(200).json(bookDelete);
   } catch (err) {
     const error = new Error(err.message);
     next(error);
@@ -32,7 +32,7 @@ const RemoveBook = async (req, res, next) => {
 const getAllbooks = async (req, res, next) => {
   try {
     const allBooks = await bookService.getAllBooks();
-    res.status(201).json(allBooks);
+    res.status(200).json(allBooks);
   } catch (err) {
     const error = new Error(err.message);
     next(error);

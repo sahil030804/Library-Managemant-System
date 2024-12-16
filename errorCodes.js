@@ -119,7 +119,7 @@ const errorCodes = {
     },
   },
   BOOK_EXIST: {
-    httpStatusCode: 400,
+    httpStatusCode: 409,
     body: {
       code: "book_already_exist",
       message: "Book already exist",
@@ -129,13 +129,13 @@ const errorCodes = {
     httpStatusCode: 400,
     body: {
       code: "book_not_deleted",
-      message: "error occured in book delete process",
+      message: "error occured in book deleting process",
     },
   },
   INVALID_BOOK_ID: {
     httpStatusCode: 400,
     body: {
-      code: "book_not_invalid",
+      code: "book_id_invalid",
       message: "Book id is invalid",
     },
   },
@@ -143,11 +143,11 @@ const errorCodes = {
     httpStatusCode: 404,
     body: {
       code: "no_books_in_db",
-      message: "No books found in the database.",
+      message: "No books found in database.",
     },
   },
   PASSWORD_NOT_SAME: {
-    httpStatusCode: 404,
+    httpStatusCode: 400,
     body: {
       code: "password_not_same",
       message: "Password and Confirm password are not same",
@@ -157,7 +157,7 @@ const errorCodes = {
     httpStatusCode: 404,
     body: {
       code: "no_members_found",
-      message: "No members found in DB",
+      message: "No members found in database",
     },
   },
   INVALID_MEMBER_ID: {
