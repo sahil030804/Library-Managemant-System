@@ -160,6 +160,13 @@ const errorCodes = {
       message: "No members found in DB",
     },
   },
+  INVALID_MEMBER_ID: {
+    httpStatusCode: 400,
+    body: {
+      code: "member_id_invalid",
+      message: "Member id is invalid",
+    },
+  },
 };
 
 export default errorCodes;

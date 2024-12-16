@@ -16,5 +16,13 @@ const allMembers = async (req, res, next) => {
     next(error);
   }
 };
+const singleMember = async (req, res, next) => {
+  try {
+    const member = await memberService.singleMember(req);
+    res.status(200).json({ Member: member });
+  } catch (error) {
+    next(error);
+  }
+};
 
-export default { addMember, allMembers };
+export default { addMember, allMembers, singleMember };

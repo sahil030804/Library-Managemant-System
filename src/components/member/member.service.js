@@ -44,6 +44,7 @@ const addMember = async (reqBody) => {
     const member = await newMember.save();
 
     const userDetails = {
+      _id: member._id,
       name: member.name,
       email: member.email,
       password: member.password,
@@ -73,6 +74,7 @@ const allMembers = async () => {
 
     const members = allMembers.map((member) => {
       return {
+        _id: member._id,
         name: member.name,
         email: member.email,
         phone: member.phone,
@@ -90,4 +92,33 @@ const allMembers = async () => {
   }
 };
 
-export default { addMember, allMembers };
+const singleMember = async (req) => {
+  const memberId = req.params.id;
+  try {
+    if (memberId.length !== 24) {
+      const error = new Error("INVALID_MEMBER_ID");
+      throw error;
+    }
+    const memberData = await user.findById(memberId);
+    if (!memberData) {
+      const error = new Error("NO_MEMBER_FOUND");
+      throw error;
+    }
+    const member = {
+      _id: memberData._id,
+      name: memberData.name,
+      email: memberData.email,
+      phone: memberData.phone,
+      address: memberData.address,
+      role: memberData.role,
+      membershipId: memberData.membershipId,
+      status: memberData.status,
+      createdAt: memberData.createdAt,
+    };
+    return member;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default { addMember, allMembers, singleMember };
