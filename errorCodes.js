@@ -146,6 +146,13 @@ const errorCodes = {
       message: "No books found in the database.",
     },
   },
+  PASSWORD_NOT_SAME: {
+    httpStatusCode: 404,
+    body: {
+      code: "password_not_same",
+      message: "Password and Confirm password are not same",
+    },
+  },
 };
 
 export default errorCodes;
