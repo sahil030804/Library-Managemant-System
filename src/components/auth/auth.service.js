@@ -2,7 +2,7 @@ import user from "../../models/user.js";
 import helper from "../../utils/helper.js";
 
 const registerUser = async (reqBody) => {
-  const { name, email, password, phone, address } = reqBody;
+  const { name, email, password, confirm_password, phone, address } = reqBody;
   try {
     const emailExistCheck = await helper.emailExistingCheck(email);
 
@@ -12,6 +12,12 @@ const registerUser = async (reqBody) => {
     }
 
     const hashedPassword = helper.encryptPassword(password);
+
+    if (!helper.decryptPassword(confirm_password, hashedPassword)) {
+      const error = new Error("PASSWORD_NOT_SAME");
+      throw error;
+    }
+
     const generateMembershipId = helper.generateMembershipId();
 
     const newMember = await user({

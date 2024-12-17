@@ -15,6 +15,12 @@ const userRegisterValidate = Joi.object({
     "string.min": "Password must be 6 character long",
     "string.max": "Password must be 18 character long",
   }),
+  confirm_password: Joi.string().required().min(6).max(18).messages({
+    "string.empty": "Confirm Password can't be not null",
+    "any.required": "Confirm Password must be required",
+    "string.min": "Confirm Password must be 6 character long",
+    "string.max": "Confirm Password must be 18 character long",
+  }),
   phone: Joi.string()
     .required()
     .pattern(/^[0-9]{10}$/)
