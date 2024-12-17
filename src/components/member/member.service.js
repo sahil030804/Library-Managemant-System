@@ -1,5 +1,5 @@
-import borrow from "../../models/borrowing.js";
-import user from "../../models/user.js";
+import borrowMdl from "../../models/borrowing.js";
+import userMdl from "../../models/user.js";
 import helper from "../../utils/helper.js";
 
 const addMember = async (reqBody) => {
@@ -30,7 +30,7 @@ const addMember = async (reqBody) => {
     }
     const generateMembershipId = helper.generateMembershipId();
 
-    const newMember = await user({
+    const newMember = await userMdl.user({
       name: name,
       email: email,
       password: hashedPassword,
@@ -66,7 +66,7 @@ const addMember = async (reqBody) => {
 
 const allMembers = async () => {
   try {
-    const allMembers = await user.find();
+    const allMembers = await userMdl.user.find();
 
     if (allMembers.length === 0) {
       const error = new Error("NO_MEMBER_FOUND");
@@ -100,7 +100,7 @@ const singleMember = async (req) => {
       const error = new Error("INVALID_MEMBER_ID");
       throw error;
     }
-    const memberData = await user.findById(memberId);
+    const memberData = await userMdl.user.findById(memberId);
     if (!memberData) {
       const error = new Error("NO_MEMBER_FOUND");
       throw error;
@@ -132,7 +132,7 @@ const updateMember = async (req) => {
       throw error;
     }
 
-    const memberFound = await user.findById(memberId);
+    const memberFound = await userMdl.user.findById(memberId);
     if (!memberFound) {
       const error = new Error("NO_MEMBER_FOUND");
       throw error;
@@ -140,7 +140,7 @@ const updateMember = async (req) => {
 
     let updateMember;
     if (req.user.role == "admin") {
-      updateMember = await user.findByIdAndUpdate(
+      updateMember = await userMdl.user.findByIdAndUpdate(
         memberId,
         {
           name: name,
@@ -154,7 +154,7 @@ const updateMember = async (req) => {
       );
     }
     if (req.user.role == "member") {
-      updateMember = await user.findByIdAndUpdate(
+      updateMember = await userMdl.user.findByIdAndUpdate(
         memberId,
         {
           name: name,
@@ -184,13 +184,11 @@ const updateMember = async (req) => {
 
 const viewHistory = async (req) => {
   try {
-    const fetchHistory = await borrow
+    const fetchHistory = await borrowMdl.borrow
       .find()
       .populate([{ path: "bookId", select: "-_id title authors" }]);
 
     const history = fetchHistory.map((history) => {
-      console.log(history);
-
       return {
         bookDetails: {
           title: history.bookId.title,

@@ -6,7 +6,10 @@ dotenv.config({
   allowEmptyValues: false,
 });
 
-const auth = {
+const env = {
+  db: {
+    DB_URL: process.env.DB_URL,
+  },
   server: {
     PORT: process.env.PORT,
     SESSION_SECRET_KEY: process.env.SESSION_SECRET_KEY,
@@ -19,4 +22,4 @@ const auth = {
   },
 };
 
-export default auth;
+export default env;

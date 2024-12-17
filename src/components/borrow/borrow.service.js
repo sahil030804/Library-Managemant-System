@@ -1,6 +1,6 @@
-import user from "../../models/user.js";
-import book from "../../models/book.js";
-import borrow from "../../models/borrowing.js";
+import userMdl from "../../models/user.js";
+import bookMdl from "../../models/book.js";
+import borrowMdl from "../../models/borrowing.js";
 import helper from "../../utils/helper.js";
 
 const borrowBook = async (req) => {
@@ -11,12 +11,12 @@ const borrowBook = async (req) => {
       const error = new Error("INVALID_BOOK_ID");
       throw error;
     }
-    const userFound = await user.findById(userId);
+    const userFound = await userMdl.user.findById(userId);
     if (userFound.status !== "active") {
       const error = new Error("ACCOUNT_INACTIVE");
       throw error;
     }
-    const bookFound = await book.findById(bookId);
+    const bookFound = await bookMdl.book.findById(bookId);
     if (!bookFound) {
       const error = new Error("BOOK_NOT_FOUND");
       throw error;
@@ -33,7 +33,7 @@ const borrowBook = async (req) => {
       throw error;
     }
 
-    const borrowBook = await borrow({
+    const borrowBook = await borrowMdl.borrow({
       bookId: bookId,
       userId: userId,
       borrowDate: new Date().toISOString(),

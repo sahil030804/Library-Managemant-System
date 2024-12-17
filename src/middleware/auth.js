@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import blacklist from "../models/blacklist.js";
-import auth from "../config/auth.js";
+import blacklistMdl from "../models/blacklist.js";
+import env from "../config/index.js";
 
 const userAuthenticate = async (req, res, next) => {
   let incomingAccessToken;
@@ -11,7 +11,7 @@ const userAuthenticate = async (req, res, next) => {
   }
 
   try {
-    const accessTokenExist = await blacklist.countDocuments({
+    const accessTokenCount = await blacklistMdl.blacklist.countDocuments({
       accessToken: incomingAccessToken,
     });
 
@@ -22,14 +22,14 @@ const userAuthenticate = async (req, res, next) => {
 
     jwt.verify(
       incomingAccessToken,
-      auth.jwt.ACCESS_TOKEN_KEY,
+      env.jwt.ACCESS_TOKEN_KEY,
       (err, decodedToken) => {
         if (err) {
           const error = new Error("ACCESS_DENIED");
           return next(error);
         }
 
-        if (accessTokenExist > 0) {
+        if (accessTokenCount > 0) {
           const error = new Error("ACCESS_DENIED");
           return next(error);
         }

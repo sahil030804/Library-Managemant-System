@@ -1,4 +1,4 @@
-import book from "../../models/book.js";
+import bookMdl from "../../models/book.js";
 
 const addBook = async (reqBody) => {
   const {
@@ -13,7 +13,7 @@ const addBook = async (reqBody) => {
   const authorsArr = authors.split(",");
 
   try {
-    const checkBookExist = await book.findOne({ ISBN });
+    const checkBookExist = await bookMdl.book.findOne({ ISBN });
     if (checkBookExist) {
       if (ISBN === checkBookExist.ISBN) {
         const error = new Error("BOOK_EXIST");
@@ -21,7 +21,7 @@ const addBook = async (reqBody) => {
       }
     }
 
-    const data = await book({
+    const data = await bookMdl.book({
       title,
       authors: authorsArr,
       ISBN,
@@ -71,13 +71,13 @@ const updateBook = async (req) => {
     const error = new Error("INVALID_BOOK_ID");
     throw error;
   }
-  const bookFound = await book.findById(bookId);
+  const bookFound = await bookMdl.book.findById(bookId);
   if (!bookFound) {
     const error = new Error("BOOK_NOT_FOUND");
     throw error;
   }
 
-  const updatedBook = await book.findByIdAndUpdate(
+  const updatedBook = await bookMdl.book.findByIdAndUpdate(
     bookId,
     {
       title,
@@ -103,12 +103,12 @@ const removeBook = async (req) => {
       const error = new Error("INVALID_BOOK_ID");
       throw error;
     }
-    const bookFound = await book.findById(bookId);
+    const bookFound = await bookMdl.book.findById(bookId);
     if (!bookFound) {
       const error = new Error("BOOK_NOT_FOUND");
       throw error;
     }
-    const bookDeleted = await book.deleteOne({ _id: bookId });
+    const bookDeleted = await bookMdl.book.deleteOne({ _id: bookId });
 
     if (!bookDeleted.deletedCount == 1) {
       const error = new Error("BOOK_NOT_DELETE");
@@ -124,7 +124,7 @@ const removeBook = async (req) => {
 
 const getAllBooks = async () => {
   try {
-    const allBooks = await book.find();
+    const allBooks = await bookMdl.book.find();
     if (allBooks.length === 0) {
       const error = new Error("EMPTY_BOOK_DB");
       throw error;
@@ -143,7 +143,7 @@ const getSingleBook = async (req) => {
       const error = new Error("INVALID_BOOK_ID");
       throw error;
     }
-    const bookFound = await book.findById(bookId);
+    const bookFound = await bookMdl.book.findById(bookId);
     if (!bookFound) {
       const error = new Error("BOOK_NOT_FOUND");
       throw error;
@@ -160,7 +160,7 @@ const searchBook = async (req) => {
 
   try {
     if (query) {
-      const bookFound = await book.find({
+      const bookFound = await bookMdl.book.find({
         $or: [
           { title: { $regex: query, $options: "i" } },
           { authors: { $regex: query, $options: "i" } },
