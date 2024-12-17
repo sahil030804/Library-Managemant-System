@@ -13,7 +13,7 @@ const borrowBook = async (req) => {
     }
     const userFound = await user.findById(userId);
     if (userFound.status !== "active") {
-      const error = new Error("User have no membership");
+      const error = new Error("ACCOUNT_INACTIVE");
       throw error;
     }
     const bookFound = await book.findById(bookId);

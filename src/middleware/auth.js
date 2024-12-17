@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import blacklist from "../models/blacklist.js";
 import auth from "../config/auth.js";
 
 const userAuthenticate = async (req, res, next) => {
@@ -10,6 +11,10 @@ const userAuthenticate = async (req, res, next) => {
   }
 
   try {
+    const accessTokenExist = await blacklist.countDocuments({
+      accessToken: incomingAccessToken,
+    });
+
     if (!incomingAccessToken) {
       const error = new Error("ACCESS_TOKEN_MISSING");
       return next(error);
@@ -23,7 +28,13 @@ const userAuthenticate = async (req, res, next) => {
           const error = new Error("ACCESS_DENIED");
           return next(error);
         }
+
+        if (accessTokenExist > 0) {
+          const error = new Error("ACCESS_DENIED");
+          return next(error);
+        }
         req.user = decodedToken;
+        req.accessToken = incomingAccessToken;
         next();
       }
     );
