@@ -1,12 +1,12 @@
-import user from "../models/user.js";
-import borrow from "../models/borrowing.js";
+import userMdl from "../models/user.js";
+import borrowMdl from "../models/borrowing.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import auth from "../config/auth.js";
+import env from "../config/index.js";
 
 const emailExistingCheck = async (email) => {
-  const countEmailExisting = await user.countDocuments({ email });
+  const countEmailExisting = await userMdl.user.countDocuments({ email });
 
   if (countEmailExisting > 0) {
     return true;
@@ -15,7 +15,7 @@ const emailExistingCheck = async (email) => {
 };
 
 const userBorrowingCheck = async (userId) => {
-  const countUserExisting = await borrow.countDocuments({ userId });
+  const countUserExisting = await borrowMdl.borrow.countDocuments({ userId });
 
   if (countUserExisting >= 3) {
     return true;
@@ -44,16 +44,16 @@ const generateAccessAndRefreshToken = async (userId, role) => {
   try {
     const accessToken = jwt.sign(
       { _id: userId, role: role },
-      auth.jwt.ACCESS_TOKEN_KEY,
-      { expiresIn: auth.jwt.ACCESS_TOKEN_EXPIRY }
+      env.jwt.ACCESS_TOKEN_KEY,
+      { expiresIn: env.jwt.ACCESS_TOKEN_EXPIRY }
     );
     const refreshToken = jwt.sign(
       { _id: userId, role: role },
-      auth.jwt.REFRESH_TOKEN_KEY,
-      { expiresIn: auth.jwt.REFRESH_TOKEN_EXPIRY }
+      env.jwt.REFRESH_TOKEN_KEY,
+      { expiresIn: env.jwt.REFRESH_TOKEN_EXPIRY }
     );
 
-    const userFound = await user.findOne(userId);
+    const userFound = await userMdl.user.findOne(userId);
     if (!userFound) {
       const error = new Error("USER_NOT_FOUND");
       throw error;

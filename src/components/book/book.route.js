@@ -7,7 +7,7 @@ import auth from "../../middleware/auth.js";
 const router = express.Router();
 
 router.post(
-  "/books",
+  "/",
   auth.userAuthenticate,
   auth.accessRole(["admin"]),
   validation.validate(bookValidation.addBookValidate),
@@ -15,7 +15,7 @@ router.post(
 );
 
 router.put(
-  "/books/:id",
+  "/:id",
   auth.userAuthenticate,
   auth.accessRole(["admin"]),
   validation.validate(bookValidation.addBookValidate),
@@ -23,14 +23,14 @@ router.put(
 );
 
 router.delete(
-  "/books/:id",
+  "/:id",
   auth.userAuthenticate,
   auth.accessRole(["admin"]),
   bookController.RemoveBook
 );
 
-router.get("/books/search", bookController.searchBook);
-router.get("/books", bookController.getAllbooks);
-router.get("/books/:id", bookController.getSinglebook);
+router.get("/search", bookController.searchBook);
+router.get("/", bookController.getAllbooks);
+router.get("/:id", bookController.getSinglebook);
 
 export default router;

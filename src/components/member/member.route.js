@@ -6,7 +6,7 @@ import memberValidation from "./member.validation.js";
 const router = express.Router();
 
 router.post(
-  "/members",
+  "/",
   auth.userAuthenticate,
   auth.accessRole(["admin"]),
   validation.validate(memberValidation.memberRegisterValidate),
@@ -14,26 +14,26 @@ router.post(
 );
 
 router.get(
-  "/members",
+  "/",
   auth.userAuthenticate,
   auth.accessRole(["admin"]),
   memberController.allMembers
 );
 router.get(
-  "/members/:id",
+  "/:id",
   auth.userAuthenticate,
   auth.accessRole(["admin"]),
   memberController.singleMember
 );
 router.put(
-  "/members/:id",
+  "/:id",
   auth.userAuthenticate,
   auth.accessRole(["admin", "member"]),
   validation.validate(memberValidation.memberUpdateValidate),
   memberController.updateMember
 );
 router.get(
-  "/members/:id/history",
+  "/:id/history",
   auth.userAuthenticate,
   auth.accessRole(["admin", "member"]),
   memberController.viewHistory

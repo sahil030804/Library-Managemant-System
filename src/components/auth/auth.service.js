@@ -1,5 +1,5 @@
-import user from "../../models/user.js";
-import blacklist from "../../models/blacklist.js";
+import userMdl from "../../models/user.js";
+import blacklistMdl from "../../models/blacklist.js";
 import helper from "../../utils/helper.js";
 
 const registerUser = async (reqBody) => {
@@ -21,7 +21,7 @@ const registerUser = async (reqBody) => {
 
     const generateMembershipId = helper.generateMembershipId();
 
-    const newMember = await user({
+    const newMember = await userMdl.user({
       name: name,
       email: email,
       password: hashedPassword,
@@ -52,7 +52,7 @@ const loginUser = async (reqBody) => {
   const { email, password } = reqBody;
 
   try {
-    const userFound = await user.findOne({ email });
+    const userFound = await userMdl.user.findOne({ email });
 
     if (!userFound) {
       const error = new Error("USER_NOT_FOUND");
@@ -86,14 +86,14 @@ const loginUser = async (reqBody) => {
 
 const logoutUser = async (req, res) => {
   try {
-    const userFound = await user.findById(req.user._id);
+    const userFound = await userMdl.user.findById(req.user._id);
     req.session.destroy((err) => {
       if (err) {
         const error = new Error(err.message);
         throw error;
       }
     });
-    const blacklisted = await blacklist({
+    const blacklisted = await blacklistMdl.blacklist({
       accessToken: req.accessToken,
     });
     await blacklisted.save();
@@ -112,7 +112,7 @@ const logoutUser = async (req, res) => {
 const resetPassword = async (reqBody) => {
   const { email, new_password, confirm_password } = reqBody;
   try {
-    const userFound = await user.findOne({ email });
+    const userFound = await userMdl.user.findOne({ email });
 
     if (!userFound) {
       const error = new Error("USER_NOT_FOUND");
@@ -130,7 +130,7 @@ const resetPassword = async (reqBody) => {
       throw error;
     }
 
-    await user.findByIdAndUpdate(userFound._id, {
+    await userMdl.user.findByIdAndUpdate(userFound._id, {
       password: hashedPassword,
     });
 
