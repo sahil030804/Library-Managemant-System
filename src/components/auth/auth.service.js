@@ -99,7 +99,7 @@ const logoutUser = async (req, res) => {
 };
 
 const resetPassword = async (reqBody) => {
-  const { email, new_password } = reqBody;
+  const { email, new_password, confirm_password } = reqBody;
   try {
     const userFound = await user.findOne({ email });
 
@@ -112,8 +112,12 @@ const resetPassword = async (reqBody) => {
       const error = new Error("CURRENT_PASSWORD");
       throw error;
     }
-
     const hashedPassword = helper.encryptPassword(new_password);
+
+    if (!helper.decryptPassword(confirm_password, hashedPassword)) {
+      const error = new Error("PASSWORD_NOT_SAME");
+      throw error;
+    }
 
     await user.findByIdAndUpdate(userFound._id, {
       password: hashedPassword,

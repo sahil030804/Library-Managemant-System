@@ -107,8 +107,8 @@ const errorCodes = {
   CURRENT_PASSWORD: {
     httpStatusCode: 400,
     body: {
-      code: "old_password",
-      message: "This is your old password",
+      code: "current_password",
+      message: "This is your current password",
     },
   },
   BOOK_NOT_FOUND: {
