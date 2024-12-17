@@ -188,6 +188,13 @@ const errorCodes = {
       message: "Account suspended",
     },
   },
+  NO_HISTORY: {
+    httpStatusCode: 404,
+    body: {
+      code: "no_borrow_history",
+      message: "No borrow history found",
+    },
+  },
 };
 
 export default errorCodes;

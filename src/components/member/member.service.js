@@ -185,8 +185,13 @@ const updateMember = async (req) => {
 const viewHistory = async (req) => {
   try {
     const fetchHistory = await borrowMdl.borrow
-      .find()
+      .find({ userId: req.params.id })
       .populate([{ path: "bookId", select: "-_id title authors" }]);
+
+    if (fetchHistory.length === 0) {
+      const error = new Error("NO_HISTORY");
+      throw error;
+    }
 
     const history = fetchHistory.map((history) => {
       return {
