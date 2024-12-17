@@ -1,3 +1,4 @@
+import borrow from "../../models/borrowing.js";
 import user from "../../models/user.js";
 import helper from "../../utils/helper.js";
 
@@ -180,4 +181,39 @@ const updateMember = async (req) => {
     throw error;
   }
 };
-export default { addMember, allMembers, singleMember, updateMember };
+
+const viewHistory = async (req) => {
+  try {
+    const fetchHistory = await borrow
+      .find()
+      .populate([{ path: "bookId", select: "-_id title authors" }]);
+
+    const history = fetchHistory.map((history) => {
+      console.log(history);
+
+      return {
+        bookDetails: {
+          title: history.bookId.title,
+          authors: history.bookId.authors,
+        },
+        borrowDate: history.borrowDate,
+        dueDate: history.dueDate,
+        returnDate: history.returnDate,
+        status: history.status,
+        fine: history.fine,
+      };
+    });
+
+    return history;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default {
+  addMember,
+  allMembers,
+  singleMember,
+  updateMember,
+  viewHistory,
+};
