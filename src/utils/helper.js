@@ -1,4 +1,5 @@
 import user from "../models/user.js";
+import borrow from "../models/borrowing.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
@@ -8,6 +9,15 @@ const emailExistingCheck = async (email) => {
   const countEmailExisting = await user.countDocuments({ email });
 
   if (countEmailExisting > 0) {
+    return true;
+  }
+  return false;
+};
+
+const userBorrowingCheck = async (userId) => {
+  const countUserExisting = await borrow.countDocuments({ userId });
+
+  if (countUserExisting >= 3) {
     return true;
   }
   return false;
@@ -57,10 +67,23 @@ const generateAccessAndRefreshToken = async (userId, role) => {
     throw error;
   }
 };
+
+const calculateDueDate = (borrowedDate) => {
+  try {
+    const dueDate = new Date(borrowedDate);
+    dueDate.setDate(dueDate.getDate() + 14);
+    return dueDate;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
 export default {
   emailExistingCheck,
+  userBorrowingCheck,
   encryptPassword,
   decryptPassword,
   generateMembershipId,
   generateAccessAndRefreshToken,
+  calculateDueDate,
 };

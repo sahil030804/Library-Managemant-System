@@ -167,6 +167,20 @@ const errorCodes = {
       message: "Member id is invalid",
     },
   },
+  BOOK_NOT_AVAILABLE: {
+    httpStatusCode: 400,
+    body: {
+      code: "book_is_not_available",
+      message: "Book is not available in library",
+    },
+  },
+  BORROW_LIMIT: {
+    httpStatusCode: 400,
+    body: {
+      code: "borrow_limit_reached",
+      message: "User books borrowing limit exceed",
+    },
+  },
 };
 
 export default errorCodes;
