@@ -32,5 +32,19 @@ const updateMember = async (req, res, next) => {
     next(error);
   }
 };
+const viewHistory = async (req, res, next) => {
+  try {
+    const history = await memberService.viewHistory(req);
+    res.status(200).json({ history: history });
+  } catch (error) {
+    next(error);
+  }
+};
 
-export default { addMember, allMembers, singleMember, updateMember };
+export default {
+  addMember,
+  allMembers,
+  singleMember,
+  updateMember,
+  viewHistory,
+};

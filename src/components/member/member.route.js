@@ -32,5 +32,11 @@ router.put(
   validation.validate(memberValidation.memberUpdateValidate),
   memberController.updateMember
 );
+router.get(
+  "/members/:id/history",
+  auth.userAuthenticate,
+  auth.accessRole(["admin", "member"]),
+  memberController.viewHistory
+);
 
 export default router;
