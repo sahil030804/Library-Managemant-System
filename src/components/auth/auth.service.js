@@ -1,4 +1,5 @@
 import user from "../../models/user.js";
+import blacklist from "../../models/blacklist.js";
 import helper from "../../utils/helper.js";
 
 const registerUser = async (reqBody) => {
@@ -85,13 +86,17 @@ const loginUser = async (reqBody) => {
 
 const logoutUser = async (req, res) => {
   try {
-    const userFound = await user.findOne(req.user.email);
+    const userFound = await user.findById(req.user._id);
     req.session.destroy((err) => {
       if (err) {
         const error = new Error(err.message);
         throw error;
       }
     });
+    const blacklisted = await blacklist({
+      accessToken: req.accessToken,
+    });
+    await blacklisted.save();
 
     userFound.refreshToken = null;
     await userFound.save();

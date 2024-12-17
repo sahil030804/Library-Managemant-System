@@ -181,6 +181,13 @@ const errorCodes = {
       message: "User books borrowing limit exceed",
     },
   },
+  ACCOUNT_INACTIVE: {
+    httpStatusCode: 400,
+    body: {
+      code: "account_inactive",
+      message: "Account suspended",
+    },
+  },
 };
 
 export default errorCodes;
