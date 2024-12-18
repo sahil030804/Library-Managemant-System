@@ -9,4 +9,13 @@ const borrowBook = async (req, res, next) => {
   }
 };
 
-export default { borrowBook };
+const returnBook = async (req, res, next) => {
+  try {
+    const returnData = await borrowService.returnBook(req);
+    res.status(200).json({ returned_Book: returnData });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default { borrowBook, returnBook };

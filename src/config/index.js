@@ -20,6 +20,11 @@ const env = {
     ACCESS_TOKEN_EXPIRY: process.env.ACCESS_TOKEN_EXPIRY,
     REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY,
   },
+  borrow: {
+    FINE: process.env.FINE,
+    DUE_TIME: process.env.DUE_TIME,
+    EXTEND_TIME: process.env.EXTEND_TIME,
+  },
 };
 
 export default env;

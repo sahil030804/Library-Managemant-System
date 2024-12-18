@@ -195,6 +195,13 @@ const errorCodes = {
       message: "No borrow history found",
     },
   },
+  BOOK_RETURNED: {
+    httpStatusCode: 400,
+    body: {
+      code: "already_book_returned",
+      message: "Book already returned",
+    },
+  },
 };
 
 export default errorCodes;

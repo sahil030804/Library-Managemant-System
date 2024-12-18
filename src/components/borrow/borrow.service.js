@@ -7,13 +7,15 @@ const borrowBook = async (req) => {
   const userId = req.user._id;
   const bookId = req.query.bookId;
   try {
-    if (bookId.length !== 24) {
-      const error = new Error("INVALID_BOOK_ID");
+    const userBorrowingCheck = await helper.userBorrowingLimitCheck(userId);
+
+    if (userBorrowingCheck) {
+      const error = new Error("BORROW_LIMIT");
       throw error;
     }
-    const userFound = await userMdl.user.findById(userId);
-    if (userFound.status !== "active") {
-      const error = new Error("ACCOUNT_INACTIVE");
+
+    if (bookId.length !== 24) {
+      const error = new Error("INVALID_BOOK_ID");
       throw error;
     }
     const bookFound = await bookMdl.book.findById(bookId);
@@ -23,13 +25,6 @@ const borrowBook = async (req) => {
     }
     if (bookFound.availableCopies === 0) {
       const error = new Error("BOOK_NOT_AVAILABLE");
-      throw error;
-    }
-
-    const userBorrowingCheck = await helper.userBorrowingLimitCheck(userId);
-
-    if (userBorrowingCheck) {
-      const error = new Error("BORROW_LIMIT");
       throw error;
     }
 
@@ -54,4 +49,49 @@ const borrowBook = async (req) => {
   }
 };
 
-export default { borrowBook };
+const returnBook = async (req) => {
+  const borrowId = req.query.borrowId;
+  try {
+    const borrowRecordFound = await borrowMdl.borrow
+      .findById(borrowId)
+      .populate("bookId");
+
+    if (!borrowRecordFound) {
+      const error = new Error("no record found");
+      throw error;
+    }
+    if (borrowRecordFound.userId.toString() !== req.user._id) {
+      const error = new Error("This book is not borrowed by you");
+      throw error;
+    }
+    if (
+      borrowRecordFound.returnDate &&
+      borrowRecordFound.status === "returned"
+    ) {
+      const error = new Error("BOOK_RETURNED");
+      throw error;
+    }
+    const dueDate = borrowRecordFound.dueDate;
+    const returnDate = new Date();
+    const fine = helper.calculateFine(dueDate, returnDate);
+    const bookReturned = await borrowMdl.borrow.findByIdAndUpdate(
+      borrowId,
+      {
+        returnDate: new Date().toISOString(),
+        status: "returned",
+        fine: fine,
+      },
+      { new: true }
+    );
+    const bookData = borrowRecordFound.bookId;
+    if (bookData.availableCopies < bookData.totalCopies) {
+      bookData.availableCopies += 1;
+      await bookData.save();
+      return bookReturned;
+    }
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default { borrowBook, returnBook };
