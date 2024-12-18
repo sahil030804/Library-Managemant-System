@@ -7,6 +7,7 @@ const userRegisterValidate = Joi.object({
   }),
   email: Joi.string().email().required().messages({
     "string.empty": "Email id can't be not null",
+    "string.email": "Email Id must be a valid email",
     "any.required": "Email id must be required",
   }),
   password: Joi.string().required().min(6).max(18).messages({
@@ -37,6 +38,7 @@ const userRegisterValidate = Joi.object({
 const resetPasswordValidate = Joi.object({
   email: Joi.string().email().required().messages({
     "string.empty": "Email id can't be not null",
+    "string.email": "Email Id must be a valid email",
     "any.required": "Email id must be required",
   }),
   new_password: Joi.string().required().min(6).max(18).messages({
@@ -55,6 +57,7 @@ const resetPasswordValidate = Joi.object({
 const userLoginValidate = Joi.object({
   email: Joi.string().email().required().messages({
     "string.empty": "Email id can't be not null",
+    "string.email": "Email Id must be a valid email",
     "any.required": "Email id must be required",
   }),
   password: Joi.string().required().min(6).max(18).messages({

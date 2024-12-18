@@ -14,10 +14,12 @@ const emailExistingCheck = async (email) => {
   return false;
 };
 
-const userBorrowingCheck = async (userId) => {
-  const countUserExisting = await borrowMdl.borrow.countDocuments({ userId });
-
-  if (countUserExisting >= 3) {
+const userBorrowingLimitCheck = async (userId) => {
+  const borrowingRecord = await borrowMdl.borrow.find({ userId: userId });
+  const currentlyBorrowedBooks = borrowingRecord.filter((record) => {
+    return record.status === "borrowed";
+  });
+  if (currentlyBorrowedBooks.length >= 3) {
     return true;
   }
   return false;
@@ -80,7 +82,7 @@ const calculateDueDate = (borrowedDate) => {
 };
 export default {
   emailExistingCheck,
-  userBorrowingCheck,
+  userBorrowingLimitCheck,
   encryptPassword,
   decryptPassword,
   generateMembershipId,

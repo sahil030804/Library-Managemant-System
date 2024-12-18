@@ -26,7 +26,7 @@ const borrowBook = async (req) => {
       throw error;
     }
 
-    const userBorrowingCheck = await helper.userBorrowingCheck(userId);
+    const userBorrowingCheck = await helper.userBorrowingLimitCheck(userId);
 
     if (userBorrowingCheck) {
       const error = new Error("BORROW_LIMIT");
