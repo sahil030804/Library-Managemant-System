@@ -7,6 +7,7 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import { createClient } from "redis";
 import { RedisStore } from "connect-redis";
+import cors from "cors";
 
 mongoose
   .connect(env.db.DB_URL)
@@ -18,6 +19,13 @@ mongoose
   });
 
 const app = express();
+
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
