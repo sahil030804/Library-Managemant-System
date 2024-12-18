@@ -3,6 +3,7 @@ import authService from "./auth.service.js";
 const registerUser = async (req, res, next) => {
   try {
     const memberData = await authService.registerUser(req.body);
+    req.session.token = memberData.accessToken;
     res.status(201).json(memberData);
   } catch (error) {
     next(error);
