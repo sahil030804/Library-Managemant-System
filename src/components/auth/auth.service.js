@@ -33,7 +33,13 @@ const registerUser = async (reqBody) => {
 
     const member = await newMember.save();
 
+    const accessAndRefreshToken = await helper.generateAccessAndRefreshToken(
+      member._id,
+      member.role
+    );
+
     const userDetails = {
+      _id: member._id,
       name: member.name,
       email: member.email,
       phone: member.phone,
@@ -41,7 +47,11 @@ const registerUser = async (reqBody) => {
       createdAt: member.createdAt,
     };
 
-    return { userDetails };
+    return {
+      userDetails,
+      accessToken: accessAndRefreshToken.accessToken,
+      refreshToken: accessAndRefreshToken.refreshToken,
+    };
   } catch (err) {
     const error = new Error(err.message);
     throw error;
