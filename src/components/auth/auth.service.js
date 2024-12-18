@@ -69,9 +69,12 @@ const loginUser = async (reqBody) => {
       userFound.role
     );
     const userDetail = {
+      _id: userFound._id,
       name: userFound.name,
       email: userFound.email,
       role: userFound.role,
+      membershipId: userFound.membershipId,
+      status: userFound.status,
     };
     return {
       userDetail,
