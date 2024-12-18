@@ -1,6 +1,7 @@
 import userMdl from "../../models/user.js";
 import blacklistMdl from "../../models/blacklist.js";
 import helper from "../../utils/helper.js";
+import user from "../../models/user.js";
 
 const registerUser = async (reqBody) => {
   const { name, email, password, confirm_password, phone, address } = reqBody;
@@ -85,9 +86,12 @@ const loginUser = async (reqBody) => {
       _id: userFound._id,
       name: userFound.name,
       email: userFound.email,
+      phone: userFound.phone,
+      address: userFound.address,
       role: userFound.role,
       membershipId: userFound.membershipId,
       status: userFound.status,
+      createdAt: userFound.createdAt,
     };
     return {
       userDetail,
