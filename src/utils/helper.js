@@ -1,4 +1,5 @@
 import userMdl from "../models/user.js";
+import bookMdl from "../models/book.js";
 import borrowMdl from "../models/borrowing.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -9,6 +10,14 @@ const emailExistingCheck = async (email) => {
   const countEmailExisting = await userMdl.user.countDocuments({ email });
 
   if (countEmailExisting > 0) {
+    return true;
+  }
+  return false;
+};
+const bookExistingCheck = async (ISBN) => {
+  const countBookExisting = await bookMdl.book.countDocuments({ ISBN });
+
+  if (countBookExisting > 0) {
     return true;
   }
   return false;
@@ -105,6 +114,7 @@ const calculateFine = (dueDate, returnDate) => {
 };
 export default {
   emailExistingCheck,
+  bookExistingCheck,
   userBorrowingLimitCheck,
   encryptPassword,
   decryptPassword,

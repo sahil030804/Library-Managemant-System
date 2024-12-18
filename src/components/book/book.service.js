@@ -1,4 +1,5 @@
 import bookMdl from "../../models/book.js";
+import helper from "../../utils/helper.js";
 
 const addBook = async (reqBody) => {
   const {
@@ -13,12 +14,11 @@ const addBook = async (reqBody) => {
   const authorsArr = authors.split(",");
 
   try {
-    const checkBookExist = await bookMdl.book.findOne({ ISBN });
-    if (checkBookExist) {
-      if (ISBN === checkBookExist.ISBN) {
-        const error = new Error("BOOK_EXIST");
-        throw error;
-      }
+    const BookExistCheck = await helper.bookExistingCheck(ISBN);
+
+    if (BookExistCheck) {
+      const error = new Error("BOOK_EXIST");
+      throw error;
     }
 
     const data = await bookMdl.book({
@@ -71,12 +71,18 @@ const updateBook = async (req) => {
     const error = new Error("INVALID_BOOK_ID");
     throw error;
   }
+
   const bookFound = await bookMdl.book.findById(bookId);
   if (!bookFound) {
     const error = new Error("BOOK_NOT_FOUND");
     throw error;
   }
+  const BookExistCheck = await helper.bookExistingCheck(ISBN);
 
+  if (BookExistCheck) {
+    const error = new Error("BOOK_EXIST");
+    throw error;
+  }
   const updatedBook = await bookMdl.book.findByIdAndUpdate(
     bookId,
     {
