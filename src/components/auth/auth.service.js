@@ -44,6 +44,9 @@ const registerUser = async (reqBody) => {
       email: member.email,
       phone: member.phone,
       address: member.address,
+      role: member.role,
+      membershipId: member.membershipId,
+      status: member.status,
       createdAt: member.createdAt,
     };
 
