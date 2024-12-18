@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import userMdl from "../models/user.js";
 import blacklistMdl from "../models/blacklist.js";
 import env from "../config/index.js";
 
@@ -63,4 +64,19 @@ const accessRole = (role) => {
     next();
   };
 };
-export default { userAuthenticate, accessRole };
+
+const memberStatusCheck = async (req, res, next) => {
+  try {
+    const userFound = await userMdl.user.findById(req.user._id);
+
+    if (userFound.status !== "active") {
+      const error = new Error("ACCOUNT_INACTIVE");
+      return next(error);
+    }
+    next();
+  } catch (err) {
+    const error = new Error(err.message);
+    return next(error);
+  }
+};
+export default { userAuthenticate, accessRole, memberStatusCheck };

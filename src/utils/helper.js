@@ -73,8 +73,31 @@ const generateAccessAndRefreshToken = async (userId, role) => {
 const calculateDueDate = (borrowedDate) => {
   try {
     const dueDate = new Date(borrowedDate);
-    dueDate.setDate(dueDate.getDate() + 14);
+    console.log(dueDate);
+
+    const dueTime = Number(env.borrow.DUE_TIME);
+    dueDate.setMinutes(dueDate.getMinutes() + dueTime);
+    console.log(dueDate);
+
     return dueDate;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+
+const calculateFine = (dueDate, returnDate) => {
+  try {
+    const fineValue = env.borrow.FINE;
+    const dateDifference = Math.floor((returnDate - dueDate) / 60 / 1000);
+    console.log(Math.floor(returnDate - dueDate));
+    console.log(dateDifference);
+
+    const fine = dateDifference * fineValue;
+    if (fine <= 0) {
+      return 0;
+    }
+    return fine;
   } catch (err) {
     const error = new Error(err.message);
     throw error;
@@ -88,4 +111,5 @@ export default {
   generateMembershipId,
   generateAccessAndRefreshToken,
   calculateDueDate,
+  calculateFine,
 };
