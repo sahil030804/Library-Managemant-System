@@ -26,8 +26,8 @@ const singleMember = async (req, res, next) => {
 };
 const updateMember = async (req, res, next) => {
   try {
-    const member = await memberService.updateMember(req);
-    res.status(200).json({ updatedMember: member });
+    const updateMember = await memberService.updateMember(req);
+    res.status(200).json(updateMember);
   } catch (error) {
     next(error);
   }

@@ -1,4 +1,5 @@
 const errorCodes = {
+  //Auth feature related
   USER_NOT_FOUND: {
     httpStatusCode: 404,
     body: {
@@ -111,6 +112,22 @@ const errorCodes = {
       message: "This is your current password",
     },
   },
+  PASSWORD_NOT_SAME: {
+    httpStatusCode: 400,
+    body: {
+      code: "password_not_same",
+      message: "Password and Confirm password are not same",
+    },
+  },
+  ACCOUNT_INACTIVE: {
+    httpStatusCode: 400,
+    body: {
+      code: "account_inactive",
+      message: "Account suspended",
+    },
+  },
+
+  //Book feature related
   BOOK_NOT_FOUND: {
     httpStatusCode: 404,
     body: {
@@ -146,13 +163,15 @@ const errorCodes = {
       message: "No books found in database.",
     },
   },
-  PASSWORD_NOT_SAME: {
+  BOOK_NOT_AVAILABLE: {
     httpStatusCode: 400,
     body: {
-      code: "password_not_same",
-      message: "Password and Confirm password are not same",
+      code: "book_is_not_available",
+      message: "Book is not available in library",
     },
   },
+
+  //Member feature related error
   NO_MEMBER_FOUND: {
     httpStatusCode: 404,
     body: {
@@ -167,25 +186,13 @@ const errorCodes = {
       message: "Member id is invalid",
     },
   },
-  BOOK_NOT_AVAILABLE: {
-    httpStatusCode: 400,
-    body: {
-      code: "book_is_not_available",
-      message: "Book is not available in library",
-    },
-  },
+
+  //Borrow feature related error
   BORROW_LIMIT: {
     httpStatusCode: 400,
     body: {
       code: "borrow_limit_reached",
       message: "User books borrowing limit exceed",
-    },
-  },
-  ACCOUNT_INACTIVE: {
-    httpStatusCode: 400,
-    body: {
-      code: "account_inactive",
-      message: "Account suspended",
     },
   },
   NO_HISTORY: {

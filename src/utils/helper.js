@@ -51,18 +51,14 @@ const generateMembershipId = () => {
   return `MEM-${timestamp}-${randomdata}`;
 };
 
-const generateAccessAndRefreshToken = async (userId, role) => {
+const generateAccessAndRefreshToken = async (userId) => {
   try {
-    const accessToken = jwt.sign(
-      { _id: userId, role: role },
-      env.jwt.ACCESS_TOKEN_KEY,
-      { expiresIn: env.jwt.ACCESS_TOKEN_EXPIRY }
-    );
-    const refreshToken = jwt.sign(
-      { _id: userId, role: role },
-      env.jwt.REFRESH_TOKEN_KEY,
-      { expiresIn: env.jwt.REFRESH_TOKEN_EXPIRY }
-    );
+    const accessToken = jwt.sign({ _id: userId }, env.jwt.ACCESS_TOKEN_KEY, {
+      expiresIn: env.jwt.ACCESS_TOKEN_EXPIRY,
+    });
+    const refreshToken = jwt.sign({ _id: userId }, env.jwt.REFRESH_TOKEN_KEY, {
+      expiresIn: env.jwt.REFRESH_TOKEN_EXPIRY,
+    });
 
     const userFound = await userMdl.user.findOne(userId);
     if (!userFound) {
