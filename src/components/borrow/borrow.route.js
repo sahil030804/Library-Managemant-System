@@ -5,11 +5,11 @@ import auth from "../../middleware/auth.js";
 const router = express.Router();
 
 router.post(
-  "/borrow",
+  "/borrow/:id",
   auth.userAuthenticate,
   auth.memberStatusCheck,
   borrowController.borrowBook
 );
-router.post("/return", auth.userAuthenticate, borrowController.returnBook);
+router.post("/return/:id", auth.userAuthenticate, borrowController.returnBook);
 
 export default router;

@@ -1,11 +1,12 @@
-import userMdl from "../../models/user.js";
 import bookMdl from "../../models/book.js";
 import borrowMdl from "../../models/borrowing.js";
 import helper from "../../utils/helper.js";
 
 const borrowBook = async (req) => {
   const userId = req.user._id;
-  const bookId = req.query.bookId;
+  const bookId = req.params.id;
+  console.log(bookId);
+
   try {
     const userBorrowingCheck = await helper.userBorrowingLimitCheck(userId);
 
@@ -50,7 +51,7 @@ const borrowBook = async (req) => {
 };
 
 const returnBook = async (req) => {
-  const borrowId = req.query.borrowId;
+  const borrowId = req.params.id;
   try {
     const borrowRecordFound = await borrowMdl.borrow
       .findById(borrowId)
