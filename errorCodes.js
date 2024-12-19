@@ -195,6 +195,13 @@ const errorCodes = {
       message: "No borrow history found",
     },
   },
+  BOOK_NOT_BORROWED: {
+    httpStatusCode: 404,
+    body: {
+      code: "book_not_borrowed",
+      message: "This book not borrowed yet",
+    },
+  },
   BOOK_RETURNED: {
     httpStatusCode: 400,
     body: {

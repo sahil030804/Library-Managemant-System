@@ -73,11 +73,11 @@ const generateAccessAndRefreshToken = async (userId, role) => {
 const calculateDueDate = (borrowedDate) => {
   try {
     const dueDate = new Date(borrowedDate);
-    console.log(dueDate);
+    console.log(dueDate.toLocaleString());
 
     const dueTime = Number(env.borrow.DUE_TIME);
     dueDate.setMinutes(dueDate.getMinutes() + dueTime);
-    console.log(dueDate);
+    console.log(dueDate.toLocaleString());
 
     return dueDate;
   } catch (err) {

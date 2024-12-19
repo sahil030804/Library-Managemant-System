@@ -60,6 +60,14 @@ const returnBook = async (req) => {
       const error = new Error("no record found");
       throw error;
     }
+    const bookData = borrowRecordFound.bookId;
+    if (bookData.availableCopies < bookData.totalCopies) {
+      bookData.availableCopies += 1;
+      await bookData.save();
+    } else {
+      const error = new Error("BOOK_NOT_BORROWED");
+      throw error;
+    }
     if (borrowRecordFound.userId.toString() !== req.user._id) {
       const error = new Error("This book is not borrowed by you");
       throw error;
@@ -71,6 +79,7 @@ const returnBook = async (req) => {
       const error = new Error("BOOK_RETURNED");
       throw error;
     }
+
     const dueDate = borrowRecordFound.dueDate;
     const returnDate = new Date();
     const fine = helper.calculateFine(dueDate, returnDate);
@@ -83,12 +92,8 @@ const returnBook = async (req) => {
       },
       { new: true }
     );
-    const bookData = borrowRecordFound.bookId;
-    if (bookData.availableCopies < bookData.totalCopies) {
-      bookData.availableCopies += 1;
-      await bookData.save();
-      return bookReturned;
-    }
+
+    return bookReturned;
   } catch (err) {
     const error = new Error(err.message);
     throw error;
