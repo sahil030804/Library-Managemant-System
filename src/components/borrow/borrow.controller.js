@@ -17,5 +17,13 @@ const returnBook = async (req, res, next) => {
     next(error);
   }
 };
+const extendBorrowing = async (req, res, next) => {
+  try {
+    const extendBorrow = await borrowService.extendBorrowing(req);
+    res.status(200).json(extendBorrow);
+  } catch (error) {
+    next(error);
+  }
+};
 
-export default { borrowBook, returnBook };
+export default { borrowBook, returnBook, extendBorrowing };

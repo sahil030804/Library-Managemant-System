@@ -99,4 +99,36 @@ const returnBook = async (req) => {
     throw error;
   }
 };
-export default { borrowBook, returnBook };
+
+const extendBorrowing = async (req) => {
+  const { borrowId } = req.body;
+  try {
+    if (borrowId.length !== 24) {
+      const error = new Error("INVALID_BORROW_ID");
+      throw error;
+    }
+    const borrowedData = await borrowMdl.borrow.findOne({ _id: borrowId });
+    if (borrowedData.userId.toString() !== req.user._id) {
+      const error = new Error("This book is not borrowed by you");
+      throw error;
+    }
+    if (!borrowedData) {
+      const error = new Error("NO_HISTORY");
+      throw error;
+    }
+    const extendTime = await borrowMdl.borrow.findByIdAndUpdate(
+      borrowId,
+      {
+        dueDate: helper.extendDueDate(borrowedData.dueDate),
+      },
+      { new: true }
+    );
+    const borrowingExtended = await extendTime.save();
+
+    return borrowingExtended;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+export default { borrowBook, returnBook, extendBorrowing };

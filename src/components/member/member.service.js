@@ -185,6 +185,7 @@ const viewHistory = async (req) => {
 
     const history = fetchHistory.map((history) => {
       return {
+        _id: history._id,
         bookDetails: {
           title: history.bookId.title,
           authors: history.bookId.authors,

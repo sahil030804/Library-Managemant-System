@@ -188,6 +188,13 @@ const errorCodes = {
   },
 
   //Borrow feature related error
+  INVALID_BORROW_ID: {
+    httpStatusCode: 400,
+    body: {
+      code: "borrow_id_invalid",
+      message: "Borrow id is invalid",
+    },
+  },
   BORROW_LIMIT: {
     httpStatusCode: 400,
     body: {
