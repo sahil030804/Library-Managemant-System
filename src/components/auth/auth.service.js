@@ -1,7 +1,6 @@
 import userMdl from "../../models/user.js";
 import blacklistMdl from "../../models/blacklist.js";
 import helper from "../../utils/helper.js";
-import user from "../../models/user.js";
 
 const registerUser = async (reqBody) => {
   const { name, email, password, confirm_password, phone, address } = reqBody;
@@ -36,7 +35,6 @@ const registerUser = async (reqBody) => {
 
     const accessAndRefreshToken = await helper.generateAccessAndRefreshToken(
       member._id,
-      member.role
     );
 
     const userDetails = {
@@ -80,7 +78,6 @@ const loginUser = async (reqBody) => {
 
     const accessAndRefreshToken = await helper.generateAccessAndRefreshToken(
       userFound._id,
-      userFound.role
     );
     const userDetail = {
       _id: userFound._id,

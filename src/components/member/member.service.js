@@ -127,6 +127,7 @@ const updateMember = async (req) => {
   const memberId = req.params.id;
   const { name, email, phone, address, role, status } = req.body;
   try {
+    const tokenData = await userMdl.user.findById(req.user._id);
     if (memberId.length !== 24) {
       const error = new Error("INVALID_MEMBER_ID");
       throw error;
@@ -139,12 +140,11 @@ const updateMember = async (req) => {
     }
 
     let updateMember;
-    if (req.user.role == "admin") {
+    if (tokenData.role == "admin") {
       updateMember = await userMdl.user.findByIdAndUpdate(
         memberId,
         {
           name: name,
-          email: email,
           phone: phone,
           address: address,
           role: role,
@@ -153,29 +153,19 @@ const updateMember = async (req) => {
         { new: true }
       );
     }
-    if (req.user.role == "member") {
+    if (tokenData.role == "member") {
       updateMember = await userMdl.user.findByIdAndUpdate(
         memberId,
         {
           name: name,
-          email: email,
           phone: phone,
           address: address,
         },
         { new: true }
       );
     }
-    const updatedMember = {
-      _id: updateMember._id,
-      name: updateMember.name,
-      email: updateMember.email,
-      phone: updateMember.phone,
-      address: updateMember.address,
-      role: updateMember.role,
-      membershipId: updateMember.membershipId,
-      status: updateMember.status,
-    };
-    return updatedMember;
+
+    return { message: `Updated successfully` };
   } catch (err) {
     const error = new Error(err.message);
     throw error;

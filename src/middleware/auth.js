@@ -57,7 +57,8 @@ const userAuthenticate = async (req, res, next) => {
 
 const accessRole = (role) => {
   return async (req, res, next) => {
-    if (!role.includes(req.user.role)) {
+    const userData = await userMdl.user.findById(req.user._id);
+    if (!role.includes(userData.role)) {
       const error = new Error("USER_UNAUTHORIZED");
       return next(error);
     }
