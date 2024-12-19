@@ -11,5 +11,6 @@ router.post(
   borrowController.borrowBook
 );
 router.post("/return", auth.userAuthenticate, borrowController.returnBook);
+router.post("/extend", auth.userAuthenticate, borrowController.extendBorrowing);
 
 export default router;

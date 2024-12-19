@@ -91,6 +91,23 @@ const calculateDueDate = (borrowedDate) => {
   }
 };
 
+const extendDueDate = (dueDate) => {
+  try {
+    const extendDueDate = new Date(dueDate);
+    // console.log(extendDueDate.toLocaleString());
+
+    const ExtendTime = Number(env.borrow.EXTEND_TIME);
+
+    extendDueDate.setMinutes(dueDate.getMinutes() + ExtendTime);
+    // console.log(extendDueDate.toLocaleString());
+
+    return extendDueDate;
+  } catch (err) {
+    const error = new Error(err.message);
+    throw error;
+  }
+};
+
 const calculateFine = (dueDate, returnDate) => {
   try {
     const fineValue = env.borrow.FINE;
@@ -117,5 +134,6 @@ export default {
   generateMembershipId,
   generateAccessAndRefreshToken,
   calculateDueDate,
+  extendDueDate,
   calculateFine,
 };
