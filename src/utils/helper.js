@@ -1,13 +1,13 @@
-import userMdl from "../models/user.js";
-import bookMdl from "../models/book.js";
-import borrowMdl from "../models/borrowing.js";
+import UserMdl from "../models/user.js";
+import BookMdl from "../models/book.js";
+import BorrowMdl from "../models/borrowing.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import env from "../config/index.js";
 
 const emailExistingCheck = async (email) => {
-  const countEmailExisting = await userMdl.user.countDocuments({ email });
+  const countEmailExisting = await UserMdl.countDocuments({ email });
 
   if (countEmailExisting > 0) {
     return true;
@@ -15,7 +15,7 @@ const emailExistingCheck = async (email) => {
   return false;
 };
 const bookExistingCheck = async (ISBN) => {
-  const countBookExisting = await bookMdl.book.countDocuments({ ISBN });
+  const countBookExisting = await BookMdl.countDocuments({ ISBN });
 
   if (countBookExisting > 0) {
     return true;
@@ -24,7 +24,7 @@ const bookExistingCheck = async (ISBN) => {
 };
 
 const userBorrowingLimitCheck = async (userId) => {
-  const borrowingRecord = await borrowMdl.borrow.find({ userId: userId });
+  const borrowingRecord = await BorrowMdl.find({ userId: userId });
   const currentlyBorrowedBooks = borrowingRecord.filter((record) => {
     return record.status === "borrowed";
   });
@@ -41,7 +41,7 @@ const encryptPassword = (password) => {
   return bcrypt.hashSync(password, salt);
 };
 
-const decryptPassword = (plain, hashed) => {
+const comparePassword = (plain, hashed) => {
   return bcrypt.compareSync(plain, hashed);
 };
 
@@ -60,19 +60,21 @@ const generateAccessAndRefreshToken = async (userId) => {
       expiresIn: env.jwt.REFRESH_TOKEN_EXPIRY,
     });
 
-    const userFound = await userMdl.user.findOne(userId);
+    const userFound = await UserMdl.findOne(userId);
     if (!userFound) {
-      const error = new Error("USER_NOT_FOUND");
-      throw error;
+      throw new Error("USER_NOT_FOUND");
     }
     userFound.refreshToken = refreshToken;
     await userFound.save();
 
     return { accessToken, refreshToken };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
+};
+
+const currentDateAndTime = () => {
+  return new Date().toISOString();
 };
 
 const calculateDueDate = (borrowedDate) => {
@@ -86,8 +88,7 @@ const calculateDueDate = (borrowedDate) => {
 
     return dueDate;
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
@@ -103,8 +104,7 @@ const extendDueDate = (dueDate) => {
 
     return extendDueDate;
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
@@ -112,8 +112,6 @@ const calculateFine = (dueDate, returnDate) => {
   try {
     const fineValue = env.borrow.FINE;
     const dateDifference = Math.floor((returnDate - dueDate) / 60 / 1000);
-    console.log(Math.floor(returnDate - dueDate));
-    console.log(dateDifference);
 
     const fine = dateDifference * fineValue;
     if (fine <= 0) {
@@ -121,8 +119,7 @@ const calculateFine = (dueDate, returnDate) => {
     }
     return fine;
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 export default {
@@ -130,9 +127,10 @@ export default {
   bookExistingCheck,
   userBorrowingLimitCheck,
   encryptPassword,
-  decryptPassword,
+  comparePassword,
   generateMembershipId,
   generateAccessAndRefreshToken,
+  currentDateAndTime,
   calculateDueDate,
   extendDueDate,
   calculateFine,

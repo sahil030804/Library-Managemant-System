@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const userRegisterValidate = Joi.object({
+const registerUser = Joi.object({
   name: Joi.string().required().messages({
     "string.empty": "Name cannot be empty.",
     "any.required": "Name is required.",
@@ -34,7 +34,21 @@ const userRegisterValidate = Joi.object({
   }),
 });
 
-const resetPasswordValidate = Joi.object({
+const loginUser = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.empty": "Email cannot be empty.",
+    "string.email": "Please enter a valid email address.",
+    "any.required": "Email is required.",
+  }),
+  password: Joi.string().min(6).max(18).required().messages({
+    "string.empty": "Password cannot be empty.",
+    "any.required": "Password is required.",
+    "string.min": "Password must be at least 6 characters long.",
+    "string.max": "Password cannot exceed 18 characters.",
+  }),
+});
+
+const resetPassword = Joi.object({
   email: Joi.string().email().required().messages({
     "string.empty": "Email cannot be empty.",
     "string.email": "Please enter a valid email address.",
@@ -52,22 +66,8 @@ const resetPasswordValidate = Joi.object({
   }),
 });
 
-const userLoginValidate = Joi.object({
-  email: Joi.string().email().required().messages({
-    "string.empty": "Email cannot be empty.",
-    "string.email": "Please enter a valid email address.",
-    "any.required": "Email is required.",
-  }),
-  password: Joi.string().min(6).max(18).required().messages({
-    "string.empty": "Password cannot be empty.",
-    "any.required": "Password is required.",
-    "string.min": "Password must be at least 6 characters long.",
-    "string.max": "Password cannot exceed 18 characters.",
-  }),
-});
-
 export default {
-  userRegisterValidate,
-  resetPasswordValidate,
-  userLoginValidate,
+  registerUser,
+  loginUser,
+  resetPassword,
 };

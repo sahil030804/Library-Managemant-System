@@ -30,11 +30,11 @@ app.use(
 app.use(express.json());
 
 const client = createClient({
-  username: "default",
-  password: "yhHO3kbMTR7U6ABXnHRPDSnbPRGZh6OP",
+  username: env.redis.REDIS_USERNAME,
+  password: env.redis.REDIS_PASSWORD,
   socket: {
-    host: "redis-16280.c264.ap-south-1-1.ec2.redns.redis-cloud.com",
-    port: 16280,
+    host: env.redis.REDIS_HOST,
+    port: env.redis.REDIS_PORT,
   },
 });
 client.on("error", (err) => console.log("Redis Client Error", err));
@@ -54,7 +54,7 @@ app.use(
 
 app.use(cookieParser());
 
-app.use("/", router);
+app.use("/api", router);
 app.use(errorHandler);
 
 app.listen(env.server.PORT, () => {

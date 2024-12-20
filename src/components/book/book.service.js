@@ -1,5 +1,7 @@
-import bookMdl from "../../models/book.js";
+import BookMdl from "../../models/book.js";
 import helper from "../../utils/helper.js";
+
+const currentTime = helper.currentDateAndTime();
 
 const addBook = async (reqBody) => {
   const {
@@ -17,11 +19,10 @@ const addBook = async (reqBody) => {
     const BookExistCheck = await helper.bookExistingCheck(ISBN);
 
     if (BookExistCheck) {
-      const error = new Error("BOOK_EXIST");
-      throw error;
+      throw new Error("BOOK_EXIST");
     }
 
-    const data = await bookMdl.book({
+    const data = await BookMdl({
       title,
       authors: authorsArr,
       ISBN,
@@ -30,8 +31,8 @@ const addBook = async (reqBody) => {
       totalCopies,
       availableCopies: totalCopies,
       shelfNumber,
-      addedAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
+      addedAt: currentTime,
+      lastUpdated: null,
     });
 
     const bookData = await data.save();
@@ -50,8 +51,7 @@ const addBook = async (reqBody) => {
 
     return { bookDetail };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
@@ -68,22 +68,19 @@ const updateBook = async (req) => {
   } = req.body;
 
   if (bookId.length !== 24) {
-    const error = new Error("INVALID_BOOK_ID");
-    throw error;
+    throw new Error("INVALID_BOOK_ID");
   }
 
-  const bookFound = await bookMdl.book.findById(bookId);
+  const bookFound = await BookMdl.findById(bookId);
   if (!bookFound) {
-    const error = new Error("BOOK_NOT_FOUND");
-    throw error;
+    throw new Error("BOOK_NOT_FOUND");
   }
   const BookExistCheck = await helper.bookExistingCheck(ISBN);
 
   if (BookExistCheck) {
-    const error = new Error("BOOK_EXIST");
-    throw error;
+    throw new Error("BOOK_EXIST");
   }
-  const updatedBook = await bookMdl.book.findByIdAndUpdate(
+  const updatedBook = await BookMdl.findByIdAndUpdate(
     bookId,
     {
       title,
@@ -93,7 +90,7 @@ const updateBook = async (req) => {
       publicationYear,
       totalCopies,
       shelfNumber,
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: currentTime,
     },
     { new: true }
   );
@@ -106,39 +103,33 @@ const removeBook = async (req) => {
 
   try {
     if (bookId.length !== 24) {
-      const error = new Error("INVALID_BOOK_ID");
-      throw error;
+      throw new Error("INVALID_BOOK_ID");
     }
-    const bookFound = await bookMdl.book.findById(bookId);
+    const bookFound = await BookMdl.findById(bookId);
     if (!bookFound) {
-      const error = new Error("BOOK_NOT_FOUND");
-      throw error;
+      throw new Error("BOOK_NOT_FOUND");
     }
-    const bookDeleted = await bookMdl.book.deleteOne({ _id: bookId });
+    const bookDeleted = await BookMdl.deleteOne({ _id: bookId });
 
     if (!bookDeleted.deletedCount == 1) {
-      const error = new Error("BOOK_NOT_DELETE");
-      throw error;
+      throw new Error("BOOK_NOT_DELETE");
     }
 
     return { message: "Book Removed Successfully" };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
 const getAllBooks = async () => {
   try {
-    const allBooks = await bookMdl.book.find();
+    const allBooks = await BookMdl.find();
     if (allBooks.length === 0) {
-      const error = new Error("EMPTY_BOOK_DB");
-      throw error;
+      throw new Error("EMPTY_BOOK_DB");
     }
     return { allBooks };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
@@ -146,18 +137,15 @@ const getSingleBook = async (req) => {
   const bookId = req.params.id;
   try {
     if (bookId.length !== 24) {
-      const error = new Error("INVALID_BOOK_ID");
-      throw error;
+      throw new Error("INVALID_BOOK_ID");
     }
-    const bookFound = await bookMdl.book.findById(bookId);
+    const bookFound = await BookMdl.findById(bookId);
     if (!bookFound) {
-      const error = new Error("BOOK_NOT_FOUND");
-      throw error;
+      throw new Error("BOOK_NOT_FOUND");
     }
     return bookFound;
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
@@ -166,7 +154,7 @@ const searchBook = async (req) => {
 
   try {
     if (query) {
-      const bookFound = await bookMdl.book.find({
+      const bookFound = await BookMdl.find({
         $or: [
           { title: { $regex: query, $options: "i" } },
           { authors: { $regex: query, $options: "i" } },
@@ -175,15 +163,13 @@ const searchBook = async (req) => {
       });
 
       if (bookFound.length === 0) {
-        const error = new Error("BOOK_NOT_FOUND");
-        throw error;
+        throw new Error("BOOK_NOT_FOUND");
       }
 
       return bookFound;
     }
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 

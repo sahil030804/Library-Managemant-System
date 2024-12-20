@@ -3,30 +3,31 @@ import bookController from "./book.controller.js";
 import bookValidation from "./book.validation.js";
 import validation from "../../middleware/validation.js";
 import auth from "../../middleware/auth.js";
+import { USER_ROLE } from "../../utils/constant.js";
 
 const router = express.Router();
 
 router.post(
   "/",
   auth.userAuthenticate,
-  auth.accessRole(["admin"]),
-  validation.validate(bookValidation.addBookValidate),
+  auth.accessRole([USER_ROLE.ADMIN]),
+  validation.validate(bookValidation.bookValidate),
   bookController.addBook
 );
 
 router.put(
   "/:id",
   auth.userAuthenticate,
-  auth.accessRole(["admin"]),
-  validation.validate(bookValidation.addBookValidate),
+  auth.accessRole([USER_ROLE.ADMIN]),
+  validation.validate(bookValidation.bookValidate),
   bookController.updateBook
 );
 
 router.delete(
   "/:id",
   auth.userAuthenticate,
-  auth.accessRole(["admin"]),
-  bookController.RemoveBook
+  auth.accessRole([USER_ROLE.ADMIN]),
+  bookController.removeBook
 );
 
 router.get("/search", bookController.searchBook);

@@ -3,7 +3,7 @@ import memberService from "./member.service.js";
 const addMember = async (req, res, next) => {
   try {
     const memberData = await memberService.addMember(req.body);
-    res.status(201).json({ Member_Details: memberData });
+    res.status(201).json({ MemberDetails: memberData });
   } catch (error) {
     next(error);
   }
@@ -11,7 +11,7 @@ const addMember = async (req, res, next) => {
 const allMembers = async (req, res, next) => {
   try {
     const allMembers = await memberService.allMembers();
-    res.status(200).json({ Members: allMembers });
+    res.status(200).json(allMembers);
   } catch (error) {
     next(error);
   }
@@ -19,7 +19,7 @@ const allMembers = async (req, res, next) => {
 const singleMember = async (req, res, next) => {
   try {
     const member = await memberService.singleMember(req);
-    res.status(200).json({ Member: member });
+    res.status(200).json(member);
   } catch (error) {
     next(error);
   }
@@ -35,7 +35,7 @@ const updateMember = async (req, res, next) => {
 const viewHistory = async (req, res, next) => {
   try {
     const history = await memberService.viewHistory(req);
-    res.status(200).json({ history: history });
+    res.status(200).json(history);
   } catch (error) {
     next(error);
   }
