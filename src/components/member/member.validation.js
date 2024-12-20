@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const memberRegisterValidate = Joi.object({
+const addMember = Joi.object({
   name: Joi.string().required().messages({
     "string.empty": "Name can't be null",
     "any.required": "name must be required",
@@ -42,7 +42,7 @@ const memberRegisterValidate = Joi.object({
     "any.required": "Status must be required",
   }),
 });
-const memberUpdateValidate = Joi.object({
+const updateMember = Joi.object({
   name: Joi.string().required().messages({
     "string.empty": "Name can't be null",
     "any.required": "name must be required",
@@ -73,4 +73,4 @@ const memberUpdateValidate = Joi.object({
   }),
 });
 
-export default { memberRegisterValidate, memberUpdateValidate };
+export default { addMember, updateMember };

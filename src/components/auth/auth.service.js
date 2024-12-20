@@ -1,5 +1,5 @@
-import userMdl from "../../models/user.js";
-import blacklistMdl from "../../models/blacklist.js";
+import UserMdl from "../../models/user.js";
+import BlacklistMdl from "../../models/blacklist.js";
 import helper from "../../utils/helper.js";
 
 const registerUser = async (reqBody) => {
@@ -8,33 +8,33 @@ const registerUser = async (reqBody) => {
     const emailExistCheck = await helper.emailExistingCheck(email);
 
     if (emailExistCheck) {
-      const error = new Error("USER_EXIST");
-      throw error;
+      throw new Error("USER_EXIST");
     }
 
     const hashedPassword = helper.encryptPassword(password);
 
-    if (!helper.decryptPassword(confirm_password, hashedPassword)) {
-      const error = new Error("PASSWORD_NOT_SAME");
-      throw error;
+    if (!helper.comparePassword(confirm_password, hashedPassword)) {
+      throw new Error("PASSWORD_NOT_SAME");
     }
 
     const generateMembershipId = helper.generateMembershipId();
 
-    const newMember = await userMdl.user({
+    const currentTime = helper.currentDateAndTime();
+
+    const newMember = await UserMdl({
       name: name,
       email: email,
       password: hashedPassword,
       phone: phone,
       address: address,
       membershipId: generateMembershipId,
-      createdAt: new Date().toISOString(),
+      createdAt: currentTime,
     });
 
     const member = await newMember.save();
 
     const accessAndRefreshToken = await helper.generateAccessAndRefreshToken(
-      member._id,
+      member._id
     );
 
     const userDetails = {
@@ -55,8 +55,7 @@ const registerUser = async (reqBody) => {
       refreshToken: accessAndRefreshToken.refreshToken,
     };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
@@ -64,20 +63,18 @@ const loginUser = async (reqBody) => {
   const { email, password } = reqBody;
 
   try {
-    const userFound = await userMdl.user.findOne({ email });
+    const userFound = await UserMdl.findOne({ email });
 
     if (!userFound) {
-      const error = new Error("USER_NOT_FOUND");
-      throw error;
+      throw new Error("USER_NOT_FOUND");
     }
 
-    if (!helper.decryptPassword(password, userFound.password)) {
-      const error = new Error("INVALID_PASSWORD");
-      throw error;
+    if (!helper.comparePassword(password, userFound.password)) {
+      throw new Error("INVALID_PASSWORD");
     }
 
     const accessAndRefreshToken = await helper.generateAccessAndRefreshToken(
-      userFound._id,
+      userFound._id
     );
     const userDetail = {
       _id: userFound._id,
@@ -96,21 +93,19 @@ const loginUser = async (reqBody) => {
       refreshToken: accessAndRefreshToken.refreshToken,
     };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
 const logoutUser = async (req, res) => {
   try {
-    const userFound = await userMdl.user.findById(req.user._id);
+    const userFound = await UserMdl.findById(req.user._id);
     req.session.destroy((err) => {
       if (err) {
-        const error = new Error(err.message);
-        throw error;
+        throw new Error(err.message);
       }
     });
-    const blacklisted = await blacklistMdl.blacklist({
+    const blacklisted = await BlacklistMdl({
       accessToken: req.accessToken,
     });
     await blacklisted.save();
@@ -121,40 +116,35 @@ const logoutUser = async (req, res) => {
     res.clearCookie("connect.sid");
     return { message: "User logged out successfully" };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
 const resetPassword = async (reqBody) => {
   const { email, new_password, confirm_password } = reqBody;
   try {
-    const userFound = await userMdl.user.findOne({ email });
+    const userFound = await UserMdl.findOne({ email });
 
     if (!userFound) {
-      const error = new Error("USER_NOT_FOUND");
-      throw error;
+      throw new Error("USER_NOT_FOUND");
     }
 
-    if (helper.decryptPassword(new_password, userFound.password)) {
-      const error = new Error("CURRENT_PASSWORD");
-      throw error;
+    if (helper.comparePassword(new_password, userFound.password)) {
+      throw new Error("CURRENT_PASSWORD");
     }
     const hashedPassword = helper.encryptPassword(new_password);
 
-    if (!helper.decryptPassword(confirm_password, hashedPassword)) {
-      const error = new Error("PASSWORD_NOT_SAME");
-      throw error;
+    if (!helper.comparePassword(confirm_password, hashedPassword)) {
+      throw new Error("PASSWORD_NOT_SAME");
     }
 
-    await userMdl.user.findByIdAndUpdate(userFound._id, {
+    await UserMdl.findByIdAndUpdate(userFound._id, {
       password: hashedPassword,
     });
 
     return { message: "Password reseted successfully" };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 export default { registerUser, loginUser, logoutUser, resetPassword };

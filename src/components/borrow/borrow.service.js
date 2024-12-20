@@ -1,41 +1,39 @@
-import bookMdl from "../../models/book.js";
-import borrowMdl from "../../models/borrowing.js";
+import BookMdl from "../../models/book.js";
+import BorrowMdl from "../../models/borrowing.js";
 import helper from "../../utils/helper.js";
+import { BORROW_STATUS } from "../../utils/constant.js";
+
+const currentTime = helper.currentDateAndTime();
 
 const borrowBook = async (req) => {
   const userId = req.user._id;
   const { bookId } = req.body;
-  console.log(bookId);
 
   try {
     const userBorrowingCheck = await helper.userBorrowingLimitCheck(userId);
 
     if (userBorrowingCheck) {
-      const error = new Error("BORROW_LIMIT");
-      throw error;
+      throw new Error("BORROW_LIMIT");
     }
 
     if (bookId.length !== 24) {
-      const error = new Error("INVALID_BOOK_ID");
-      throw error;
+      throw new Error("INVALID_BOOK_ID");
     }
-    const bookFound = await bookMdl.book.findById(bookId);
+    const bookFound = await BookMdl.findById(bookId);
     if (!bookFound) {
-      const error = new Error("BOOK_NOT_FOUND");
-      throw error;
+      throw new Error("BOOK_NOT_FOUND");
     }
     if (bookFound.availableCopies === 0) {
-      const error = new Error("BOOK_NOT_AVAILABLE");
-      throw error;
+      throw new Error("BOOK_NOT_AVAILABLE");
     }
-
-    const borrowBook = await borrowMdl.borrow({
+    const dueDate = helper.calculateDueDate(new Date());
+    const borrowBook = await BorrowMdl({
       bookId: bookId,
       userId: userId,
-      borrowDate: new Date().toISOString(),
-      dueDate: helper.calculateDueDate(new Date()),
+      borrowDate: currentTime,
+      dueDate: dueDate,
       returnDate: null,
-      status: "borrowed",
+      status: BORROW_STATUS.BORROWED,
       fine: 0,
     });
     const bookBorrowed = await borrowBook.save();
@@ -45,59 +43,53 @@ const borrowBook = async (req) => {
 
     return bookBorrowed;
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
 const returnBook = async (req) => {
   const { borrowId } = req.body;
   try {
-    const borrowRecordFound = await borrowMdl.borrow
-      .findById(borrowId)
-      .populate("bookId");
+    const borrowRecordFound = await BorrowMdl.findById(borrowId).populate(
+      "bookId"
+    );
 
     if (!borrowRecordFound) {
-      const error = new Error("NO_HISTORY");
-      throw error;
+      throw new Error("NO_HISTORY");
     }
     const bookData = borrowRecordFound.bookId;
     if (bookData.availableCopies < bookData.totalCopies) {
       bookData.availableCopies += 1;
       await bookData.save();
     } else {
-      const error = new Error("BOOK_NOT_BORROWED");
-      throw error;
+      throw new Error("BOOK_NOT_BORROWED");
     }
     if (borrowRecordFound.userId.toString() !== req.user._id) {
-      const error = new Error("YOU_NOT_BORROWED");
-      throw error;
+      throw new Error("YOU_NOT_BORROWED");
     }
     if (
       borrowRecordFound.returnDate &&
-      borrowRecordFound.status === "returned"
+      borrowRecordFound.status === BORROW_STATUS.RETURNED
     ) {
-      const error = new Error("BOOK_RETURNED");
-      throw error;
+      throw new Error("BOOK_RETURNED");
     }
 
     const dueDate = borrowRecordFound.dueDate;
     const returnDate = new Date();
     const fine = helper.calculateFine(dueDate, returnDate);
-    const bookReturned = await borrowMdl.borrow.findByIdAndUpdate(
+    const bookReturned = await BorrowMdl.findByIdAndUpdate(
       borrowId,
       {
-        returnDate: new Date().toISOString(),
-        status: "returned",
+        returnDate: currentTime,
+        status: BORROW_STATUS.RETURNED,
         fine: fine,
       },
       { new: true }
     );
 
-    return bookReturned;
+    return { message: "Book successfully returned", bookReturned };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 
@@ -105,22 +97,20 @@ const extendBorrowing = async (req) => {
   const { borrowId } = req.body;
   try {
     if (borrowId.length !== 24) {
-      const error = new Error("INVALID_BORROW_ID");
-      throw error;
+      throw new Error("INVALID_BORROW_ID");
     }
-    const borrowedData = await borrowMdl.borrow.findOne({ _id: borrowId });
+    const borrowedData = await BorrowMdl.findOne({ _id: borrowId });
     if (borrowedData.userId.toString() !== req.user._id) {
-      const error = new Error("This book is not borrowed by you");
-      throw error;
+      throw new Error("This book is not borrowed by you");
     }
     if (!borrowedData) {
-      const error = new Error("NO_HISTORY");
-      throw error;
+      throw new Error("NO_HISTORY");
     }
-    const extendTime = await borrowMdl.borrow.findByIdAndUpdate(
+    const extendDueDate = helper.extendDueDate(borrowedData.dueDate);
+    const extendTime = await BorrowMdl.findByIdAndUpdate(
       borrowId,
       {
-        dueDate: helper.extendDueDate(borrowedData.dueDate),
+        dueDate: extendDueDate,
       },
       { new: true }
     );
@@ -128,8 +118,7 @@ const extendBorrowing = async (req) => {
 
     return borrowingExtended;
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
   }
 };
 export default { borrowBook, returnBook, extendBorrowing };

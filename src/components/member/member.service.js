@@ -1,6 +1,7 @@
-import borrowMdl from "../../models/borrowing.js";
-import userMdl from "../../models/user.js";
+import BorrowMdl from "../../models/borrowing.js";
+import UserMdl from "../../models/user.js";
 import helper from "../../utils/helper.js";
+import { USER_ROLE } from "../../utils/constant.js";
 
 const addMember = async (reqBody) => {
   const {
@@ -18,19 +19,19 @@ const addMember = async (reqBody) => {
     const emailExistCheck = await helper.emailExistingCheck(email);
 
     if (emailExistCheck) {
-      const error = new Error("USER_EXIST");
-      throw error;
+      throw new Error("USER_EXIST");
+      
     }
 
     const hashedPassword = helper.encryptPassword(password);
 
-    if (!helper.decryptPassword(confirm_password, hashedPassword)) {
-      const error = new Error("PASSWORD_NOT_SAME");
-      throw error;
+    if (!helper.comparePassword(confirm_password, hashedPassword)) {
+      throw new Error("PASSWORD_NOT_SAME");
+      
     }
     const generateMembershipId = helper.generateMembershipId();
 
-    const newMember = await userMdl.user({
+    const newMember = await UserMdl({
       name: name,
       email: email,
       password: hashedPassword,
@@ -59,18 +60,18 @@ const addMember = async (reqBody) => {
 
     return userDetails;
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
+    
   }
 };
 
 const allMembers = async () => {
   try {
-    const allMembers = await userMdl.user.find();
+    const allMembers = await UserMdl.find();
 
     if (allMembers.length === 0) {
-      const error = new Error("NO_MEMBER_FOUND");
-      throw error;
+      throw new Error("NO_MEMBER_FOUND");
+      
     }
 
     const members = allMembers.map((member) => {
@@ -86,10 +87,10 @@ const allMembers = async () => {
         createdAt: member.createdAt,
       };
     });
-    return members;
+    return { members };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
+    
   }
 };
 
@@ -97,13 +98,13 @@ const singleMember = async (req) => {
   const memberId = req.params.id;
   try {
     if (memberId.length !== 24) {
-      const error = new Error("INVALID_MEMBER_ID");
-      throw error;
+      throw new Error("INVALID_MEMBER_ID");
+      
     }
-    const memberData = await userMdl.user.findById(memberId);
+    const memberData = await UserMdl.findById(memberId);
     if (!memberData) {
-      const error = new Error("NO_MEMBER_FOUND");
-      throw error;
+      throw new Error("NO_MEMBER_FOUND");
+      
     }
     const member = {
       _id: memberData._id,
@@ -116,10 +117,10 @@ const singleMember = async (req) => {
       status: memberData.status,
       createdAt: memberData.createdAt,
     };
-    return member;
+    return { member };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
+    
   }
 };
 
@@ -127,21 +128,21 @@ const updateMember = async (req) => {
   const memberId = req.params.id;
   const { name, email, phone, address, role, status } = req.body;
   try {
-    const tokenData = await userMdl.user.findById(req.user._id);
+    const tokenData = await UserMdl.findById(req.user._id);
     if (memberId.length !== 24) {
-      const error = new Error("INVALID_MEMBER_ID");
-      throw error;
+      throw new Error("INVALID_MEMBER_ID");
+      
     }
 
-    const memberFound = await userMdl.user.findById(memberId);
+    const memberFound = await UserMdl.findById(memberId);
     if (!memberFound) {
-      const error = new Error("NO_MEMBER_FOUND");
-      throw error;
+      throw new Error("NO_MEMBER_FOUND");
+      
     }
 
     let updateMember;
-    if (tokenData.role == "admin") {
-      updateMember = await userMdl.user.findByIdAndUpdate(
+    if (tokenData.role == USER_ROLE.ADMIN) {
+      updateMember = await UserMdl.findByIdAndUpdate(
         memberId,
         {
           name: name,
@@ -153,8 +154,8 @@ const updateMember = async (req) => {
         { new: true }
       );
     }
-    if (tokenData.role == "member") {
-      updateMember = await userMdl.user.findByIdAndUpdate(
+    if (tokenData.role == USER_ROLE.MEMBER) {
+      updateMember = await UserMdl.findByIdAndUpdate(
         memberId,
         {
           name: name,
@@ -167,20 +168,20 @@ const updateMember = async (req) => {
 
     return { message: `Updated successfully` };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
+    
   }
 };
 
 const viewHistory = async (req) => {
   try {
-    const fetchHistory = await borrowMdl.borrow
+    const fetchHistory = await BorrowMdl
       .find({ userId: req.params.id })
       .populate([{ path: "bookId", select: "-_id title authors" }]);
 
     if (fetchHistory.length === 0) {
-      const error = new Error("NO_HISTORY");
-      throw error;
+      throw new Error("NO_HISTORY");
+      
     }
 
     const history = fetchHistory.map((history) => {
@@ -198,10 +199,10 @@ const viewHistory = async (req) => {
       };
     });
 
-    return history;
+    return { history };
   } catch (err) {
-    const error = new Error(err.message);
-    throw error;
+    throw new Error(err.message);
+    
   }
 };
 export default {

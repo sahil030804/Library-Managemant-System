@@ -5,8 +5,7 @@ const addBook = async (req, res, next) => {
     const bookDetail = await bookService.addBook(req.body);
     res.status(201).json(bookDetail);
   } catch (err) {
-    const error = new Error(err.message);
-    next(error);
+    next(err);
   }
 };
 
@@ -15,18 +14,16 @@ const updateBook = async (req, res, next) => {
     const bookDetail = await bookService.updateBook(req);
     res.status(200).json(bookDetail);
   } catch (err) {
-    const error = new Error(err.message);
-    next(error);
+    next(err);
   }
 };
 
-const RemoveBook = async (req, res, next) => {
+const removeBook = async (req, res, next) => {
   try {
     const bookDelete = await bookService.removeBook(req);
     res.status(200).json(bookDelete);
   } catch (err) {
-    const error = new Error(err.message);
-    next(error);
+    next(err);
   }
 };
 const getAllbooks = async (req, res, next) => {
@@ -34,8 +31,7 @@ const getAllbooks = async (req, res, next) => {
     const allBooks = await bookService.getAllBooks();
     res.status(200).json(allBooks);
   } catch (err) {
-    const error = new Error(err.message);
-    next(error);
+    next(err);
   }
 };
 const getSinglebook = async (req, res, next) => {
@@ -43,8 +39,7 @@ const getSinglebook = async (req, res, next) => {
     const singleBook = await bookService.getSingleBook(req);
     res.status(200).json({ Book: singleBook });
   } catch (err) {
-    const error = new Error(err.message);
-    next(error);
+    next(err);
   }
 };
 
@@ -53,15 +48,14 @@ const searchBook = async (req, res, next) => {
     const searchedBooks = await bookService.searchBook(req);
     res.status(200).json({ SearchedBooks: searchedBooks });
   } catch (err) {
-    const error = new Error(err.message);
-    next(error);
+    next(err);
   }
 };
 
 export default {
   addBook,
   updateBook,
-  RemoveBook,
+  removeBook,
   getAllbooks,
   getSinglebook,
   searchBook,

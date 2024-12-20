@@ -8,18 +8,18 @@ const router = express.Router();
 
 router.post(
   "/register",
-  validation.validate(authValidation.userRegisterValidate),
+  validation.validate(authValidation.registerUser),
   authController.registerUser
 );
 router.post(
   "/login",
-  validation.validate(authValidation.userLoginValidate),
+  validation.validate(authValidation.loginUser),
   authController.loginUser
 );
 router.post("/logout", auth.userAuthenticate, authController.logoutUser);
 router.post(
   "/reset-password",
-  validation.validate(authValidation.resetPasswordValidate),
+  validation.validate(authValidation.resetPassword),
   authController.resetPassword
 );
 

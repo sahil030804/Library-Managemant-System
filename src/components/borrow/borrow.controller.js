@@ -3,7 +3,7 @@ import borrowService from "./borrow.service.js";
 const borrowBook = async (req, res, next) => {
   try {
     const borrowData = await borrowService.borrowBook(req);
-    res.status(200).json({ borrowed_Book: borrowData });
+    res.status(200).json({ borrowedBook: borrowData });
   } catch (error) {
     next(error);
   }
@@ -12,7 +12,7 @@ const borrowBook = async (req, res, next) => {
 const returnBook = async (req, res, next) => {
   try {
     const returnData = await borrowService.returnBook(req);
-    res.status(200).json({ returned_Book: returnData });
+    res.status(200).json(returnData);
   } catch (error) {
     next(error);
   }

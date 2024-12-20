@@ -6,9 +6,9 @@ import borrowRouter from "./src/components/borrow/borrow.route.js";
 
 const router = express.Router();
 
-router.use("/api/auth", authRouter);
-router.use("/api/books", bookRouter);
-router.use("/api/members", memberRouter);
-router.use("/api", borrowRouter);
+router.use("/auth", authRouter);
+router.use("/books", bookRouter);
+router.use("/members", memberRouter);
+router.use("/", borrowRouter);
 
 export default router;

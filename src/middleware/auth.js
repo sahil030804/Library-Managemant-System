@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import userMdl from "../models/user.js";
-import blacklistMdl from "../models/blacklist.js";
+import UserMdl from "../models/user.js";
+import BlacklistMdl from "../models/blacklist.js";
 import env from "../config/index.js";
 
 const userAuthenticate = async (req, res, next) => {
@@ -12,13 +12,12 @@ const userAuthenticate = async (req, res, next) => {
   }
 
   try {
-    const accessTokenCount = await blacklistMdl.blacklist.countDocuments({
+    const accessTokenCount = await BlacklistMdl.countDocuments({
       accessToken: incomingAccessToken,
     });
 
     if (!incomingAccessToken) {
-      const error = new Error("ACCESS_TOKEN_MISSING");
-      return next(error);
+      return next(new Error("ACCESS_TOKEN_MISSING"));
     }
 
     jwt.verify(
@@ -26,13 +25,11 @@ const userAuthenticate = async (req, res, next) => {
       env.jwt.ACCESS_TOKEN_KEY,
       (err, decodedToken) => {
         if (err) {
-          const error = new Error("ACCESS_DENIED");
-          return next(error);
+          return next(new Error("ACCESS_DENIED"));
         }
 
         if (accessTokenCount > 0) {
-          const error = new Error("ACCESS_DENIED");
-          return next(error);
+          return next(new Error("ACCESS_DENIED"));
         }
         req.user = decodedToken;
         req.accessToken = incomingAccessToken;
@@ -41,26 +38,21 @@ const userAuthenticate = async (req, res, next) => {
     );
   } catch (err) {
     if (err.name === "JsonWebTokenError") {
-      const error = new Error("TOKEN_INVALID");
-      return next(error);
+      return next(new Error("TOKEN_INVALID"));
     }
 
     if (err.name === "TokenExpiredError") {
-      const error = new Error("ACCESS_TOKEN_EXPIRED");
-      return next(error);
+      return next(new Error("ACCESS_TOKEN_EXPIRED"));
     }
-
-    const error = new Error(err.message);
-    return next(error);
+    return next(new Error(err.message));
   }
 };
 
 const accessRole = (role) => {
   return async (req, res, next) => {
-    const userData = await userMdl.user.findById(req.user._id);
+    const userData = await UserMdl.findById(req.user._id);
     if (!role.includes(userData.role)) {
-      const error = new Error("USER_UNAUTHORIZED");
-      return next(error);
+      return next(new Error("USER_UNAUTHORIZED"));
     }
     next();
   };
@@ -68,16 +60,14 @@ const accessRole = (role) => {
 
 const memberStatusCheck = async (req, res, next) => {
   try {
-    const userFound = await userMdl.user.findById(req.user._id);
+    const userFound = await UserMdl.findById(req.user._id);
 
     if (userFound.status !== "active") {
-      const error = new Error("ACCOUNT_INACTIVE");
-      return next(error);
+      return next(new Error("ACCOUNT_INACTIVE"));
     }
     next();
   } catch (err) {
-    const error = new Error(err.message);
-    return next(error);
+    return next(new Error(err.message));
   }
 };
 export default { userAuthenticate, accessRole, memberStatusCheck };

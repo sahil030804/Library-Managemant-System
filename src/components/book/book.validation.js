@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const addBookValidate = Joi.object({
+const bookValidate = Joi.object({
   title: Joi.string().trim().empty().required().messages({
     "string.empty": "Title can't be empty",
     "any.required": "Title must be required",
@@ -38,4 +38,4 @@ const addBookValidate = Joi.object({
   }),
 });
 
-export default { addBookValidate };
+export default { bookValidate };
