@@ -78,11 +78,11 @@ const generateAccessAndRefreshToken = async (userId) => {
 const calculateDueDate = (borrowedDate) => {
   try {
     const dueDate = new Date(borrowedDate);
-    console.log(dueDate.toLocaleString());
+    // console.log(dueDate.toLocaleString());
 
     const dueTime = Number(env.borrow.DUE_TIME);
-    dueDate.setMinutes(dueDate.getMinutes() + dueTime);
-    console.log(dueDate.toLocaleString());
+    dueDate.setDate(dueDate.getDate() + dueTime);
+    // console.log(dueDate.toLocaleString());
 
     return dueDate;
   } catch (err) {
@@ -98,7 +98,7 @@ const extendDueDate = (dueDate) => {
 
     const ExtendTime = Number(env.borrow.EXTEND_TIME);
 
-    extendDueDate.setMinutes(dueDate.getMinutes() + ExtendTime);
+    extendDueDate.setDate(dueDate.getDate() + ExtendTime);
     // console.log(extendDueDate.toLocaleString());
 
     return extendDueDate;

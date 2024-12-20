@@ -216,6 +216,13 @@ const errorCodes = {
       message: "This book not borrowed yet",
     },
   },
+  YOU_NOT_BORROWED: {
+    httpStatusCode: 404,
+    body: {
+      code: "book_not_borrowed",
+      message: "This book is not borrowed by you",
+    },
+  },
   BOOK_RETURNED: {
     httpStatusCode: 400,
     body: {

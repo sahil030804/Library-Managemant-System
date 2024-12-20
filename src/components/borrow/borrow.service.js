@@ -1,11 +1,12 @@
-import userMdl from "../../models/user.js";
 import bookMdl from "../../models/book.js";
 import borrowMdl from "../../models/borrowing.js";
 import helper from "../../utils/helper.js";
 
 const borrowBook = async (req) => {
   const userId = req.user._id;
-  const bookId = req.query.bookId;
+  const { bookId } = req.body;
+  console.log(bookId);
+
   try {
     const userBorrowingCheck = await helper.userBorrowingLimitCheck(userId);
 
@@ -50,14 +51,14 @@ const borrowBook = async (req) => {
 };
 
 const returnBook = async (req) => {
-  const borrowId = req.query.borrowId;
+  const { borrowId } = req.body;
   try {
     const borrowRecordFound = await borrowMdl.borrow
       .findById(borrowId)
       .populate("bookId");
 
     if (!borrowRecordFound) {
-      const error = new Error("no record found");
+      const error = new Error("NO_HISTORY");
       throw error;
     }
     const bookData = borrowRecordFound.bookId;
@@ -69,7 +70,7 @@ const returnBook = async (req) => {
       throw error;
     }
     if (borrowRecordFound.userId.toString() !== req.user._id) {
-      const error = new Error("This book is not borrowed by you");
+      const error = new Error("YOU_NOT_BORROWED");
       throw error;
     }
     if (
