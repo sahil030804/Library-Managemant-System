@@ -49,10 +49,11 @@ const loginUser = Joi.object({
 });
 
 const resetPassword = Joi.object({
-  email: Joi.string().email().required().messages({
-    "string.empty": "Email cannot be empty.",
-    "string.email": "Please enter a valid email address.",
-    "any.required": "Email is required.",
+  current_password: Joi.string().min(6).max(18).required().messages({
+    "string.empty": "Current Password cannot be empty.",
+    "any.required": "Current Password is required.",
+    "string.min": "Current Password must be at least 6 characters long.",
+    "string.max": "Current Password cannot exceed 18 characters.",
   }),
   new_password: Joi.string().min(6).max(18).required().messages({
     "string.empty": "New Password cannot be empty.",

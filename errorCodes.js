@@ -78,13 +78,6 @@ const errorCodes = {
       message: "User is unauthorized",
     },
   },
-  CURRENT_PASSWORD: {
-    httpStatusCode: 400,
-    body: {
-      code: "current_password",
-      message: "This is your current password",
-    },
-  },
   PASSWORD_NOT_SAME: {
     httpStatusCode: 400,
     body: {

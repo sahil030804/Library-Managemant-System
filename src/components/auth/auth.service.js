@@ -105,20 +105,19 @@ const logoutUser = async (req, res) => {
   }
 };
 
-const resetPassword = async (reqBody) => {
-  const { email, new_password, confirm_password } = reqBody;
+const resetPassword = async (req) => {
+  const { current_password, new_password, confirm_password } = req.body;
   try {
-    const userFound = await UserMdl.findOne({ email });
+    const userFound = await UserMdl.findOne({ _id: req.user._id });
 
     if (!userFound) {
       throw new Error("USER_NOT_FOUND");
     }
-
-    if (helper.comparePassword(new_password, userFound.password)) {
-      throw new Error("CURRENT_PASSWORD");
+    if (!helper.comparePassword(current_password, userFound.password)) {
+      throw new Error("INVALID_PASSWORD");
     }
-    const hashedPassword = helper.encryptPassword(new_password);
 
+    const hashedPassword = helper.encryptPassword(new_password);
     if (!helper.comparePassword(confirm_password, hashedPassword)) {
       throw new Error("PASSWORD_NOT_SAME");
     }
