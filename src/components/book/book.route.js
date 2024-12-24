@@ -4,6 +4,7 @@ import bookValidation from "./book.validation.js";
 import validation from "../../middleware/validation.js";
 import auth from "../../middleware/auth.js";
 import { USER_ROLE } from "../../utils/constant.js";
+import borrowController from "../borrow/borrow.controller.js";
 
 const router = express.Router();
 
@@ -33,5 +34,14 @@ router.delete(
 router.get("/search", bookController.searchBook);
 router.get("/", bookController.getAllbooks);
 router.get("/:id", bookController.getSinglebook);
+
+router.post(
+  "/borrow",
+  auth.userAuthenticate,
+  auth.memberStatusCheck,
+  borrowController.borrowBook
+);
+router.post("/return", auth.userAuthenticate, borrowController.returnBook);
+router.post("/extend", auth.userAuthenticate, borrowController.extendBorrowing);
 
 export default router;
