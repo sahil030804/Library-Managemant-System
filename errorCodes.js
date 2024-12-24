@@ -98,6 +98,14 @@ const errorCodes = {
       message: "Access denied. Please log in",
     },
   },
+  ALREADY_LOGOUT: {
+    httpStatusCode: 403,
+    body: {
+      code: "access_denied",
+      message: "User already logged out.",
+    },
+  },
+
   USER_UNAUTHORIZED: {
     httpStatusCode: 401,
     body: {

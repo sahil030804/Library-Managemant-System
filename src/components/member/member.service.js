@@ -128,7 +128,7 @@ const updateMember = async (req) => {
   const memberId = req.params.id;
   const { name, email, phone, address, role, status } = req.body;
   try {
-    const tokenData = await UserMdl.findById(req.user._id);
+    const userData = await UserMdl.findById(req.user._id);
     if (memberId.length !== 24) {
       throw new Error("INVALID_MEMBER_ID");
       
@@ -141,7 +141,7 @@ const updateMember = async (req) => {
     }
 
     let updateMember;
-    if (tokenData.role == USER_ROLE.ADMIN) {
+    if (userData.role == USER_ROLE.ADMIN) {
       updateMember = await UserMdl.findByIdAndUpdate(
         memberId,
         {
@@ -154,7 +154,7 @@ const updateMember = async (req) => {
         { new: true }
       );
     }
-    if (tokenData.role == USER_ROLE.MEMBER) {
+    if (userData.role == USER_ROLE.MEMBER) {
       updateMember = await UserMdl.findByIdAndUpdate(
         memberId,
         {

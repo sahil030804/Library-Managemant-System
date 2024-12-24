@@ -3,17 +3,17 @@ import authService from "./auth.service.js";
 const registerUser = async (req, res, next) => {
   try {
     const memberData = await authService.registerUser(req.body);
-    req.session.token = memberData.accessToken;
-    res.status(201).json(memberData);
+    req.session.user = memberData.user;
+    res.status(201).json(memberData.userDetails);
   } catch (error) {
     next(error);
   }
 };
 const loginUser = async (req, res, next) => {
   try {
-    const tokenData = await authService.loginUser(req.body);
-    req.session.token = tokenData.accessToken;
-    res.status(200).json(tokenData);
+    const memberData = await authService.loginUser(req.body);
+    req.session.user = memberData.user;
+    res.status(200).json(memberData.userDetail);
   } catch (error) {
     next(error);
   }
