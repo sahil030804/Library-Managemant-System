@@ -106,6 +106,10 @@ const extendBorrowing = async (req) => {
     if (!borrowedData) {
       throw new Error("NO_HISTORY");
     }
+
+    if (borrowedData.status === BORROW_STATUS.RETURNED) {
+      throw new Error("BOOK_RETURNED");
+    }
     const extendDueDate = helper.extendDueDate(borrowedData.dueDate);
     const extendTime = await BorrowMdl.findByIdAndUpdate(
       borrowId,
