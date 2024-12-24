@@ -28,7 +28,7 @@ const removeBook = async (req, res, next) => {
 };
 const getAllbooks = async (req, res, next) => {
   try {
-    const allBooks = await bookService.getAllBooks();
+    const allBooks = await bookService.getAllBooks(req);
     res.status(200).json(allBooks);
   } catch (err) {
     next(err);
@@ -37,7 +37,7 @@ const getAllbooks = async (req, res, next) => {
 const getSinglebook = async (req, res, next) => {
   try {
     const singleBook = await bookService.getSingleBook(req);
-    res.status(200).json({ Book: singleBook });
+    res.status(200).json({ book: singleBook });
   } catch (err) {
     next(err);
   }
@@ -46,7 +46,7 @@ const getSinglebook = async (req, res, next) => {
 const searchBook = async (req, res, next) => {
   try {
     const searchedBooks = await bookService.searchBook(req);
-    res.status(200).json({ SearchedBooks: searchedBooks });
+    res.status(200).json({ searchedBooks: searchedBooks });
   } catch (err) {
     next(err);
   }
