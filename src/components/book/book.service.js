@@ -75,10 +75,8 @@ const updateBook = async (req) => {
   if (!bookFound) {
     throw new Error("BOOK_NOT_FOUND");
   }
-  const BookExistCheck = await helper.bookExistingCheck(ISBN);
-
-  if (BookExistCheck) {
-    throw new Error("BOOK_EXIST");
+  if (bookFound.ISBN !== ISBN) {
+    throw new Error("SAME_ISBN");
   }
   const updatedBook = await BookMdl.findByIdAndUpdate(
     bookId,

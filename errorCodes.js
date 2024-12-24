@@ -56,41 +56,6 @@ const errorCodes = {
       message: "Name can't be null",
     },
   },
-  REFRESH_TOKEN_MISSING: {
-    httpStatusCode: 401,
-    body: {
-      code: "refresh_token_unavailable",
-      message: "Refresh Token Is Unavailable",
-    },
-  },
-  REFRESH_TOKEN_EXPIRED: {
-    httpStatusCode: 401,
-    body: {
-      code: "refresh_token_expired",
-      message: "Refresh token expired or in use",
-    },
-  },
-  ACCESS_TOKEN_MISSING: {
-    httpStatusCode: 401,
-    body: {
-      code: "access_token_unavailable",
-      message: "Access Token Is Unavailable",
-    },
-  },
-  ACCESS_TOKEN_EXPIRED: {
-    httpStatusCode: 401,
-    body: {
-      code: "access_token_expired",
-      message: "Access token expired",
-    },
-  },
-  TOKEN_INVALID: {
-    httpStatusCode: 401,
-    body: {
-      code: "invalid_token",
-      message: "Invalid token",
-    },
-  },
   ACCESS_DENIED: {
     httpStatusCode: 403,
     body: {
@@ -162,6 +127,13 @@ const errorCodes = {
     body: {
       code: "book_id_invalid",
       message: "Book id is invalid",
+    },
+  },
+  SAME_ISBN: {
+    httpStatusCode: 400,
+    body: {
+      code: "isbn_remain_same",
+      message: "Book's ISBN number remain same.",
     },
   },
   EMPTY_BOOK_DB: {
