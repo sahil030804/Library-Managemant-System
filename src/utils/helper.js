@@ -3,7 +3,6 @@ import BookMdl from "../models/book.js";
 import BorrowMdl from "../models/borrowing.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
 import env from "../config/index.js";
 
 const emailExistingCheck = async (email) => {
@@ -49,28 +48,6 @@ const generateMembershipId = () => {
   const timestamp = Date.now();
   const randomdata = crypto.randomBytes(10).toString("hex");
   return `MEM-${timestamp}-${randomdata}`;
-};
-
-const generateAccessAndRefreshToken = async (userId) => {
-  try {
-    const accessToken = jwt.sign({ _id: userId }, env.jwt.ACCESS_TOKEN_KEY, {
-      expiresIn: env.jwt.ACCESS_TOKEN_EXPIRY,
-    });
-    const refreshToken = jwt.sign({ _id: userId }, env.jwt.REFRESH_TOKEN_KEY, {
-      expiresIn: env.jwt.REFRESH_TOKEN_EXPIRY,
-    });
-
-    const userFound = await UserMdl.findOne(userId);
-    if (!userFound) {
-      throw new Error("USER_NOT_FOUND");
-    }
-    userFound.refreshToken = refreshToken;
-    await userFound.save();
-
-    return { accessToken, refreshToken };
-  } catch (err) {
-    throw new Error(err.message);
-  }
 };
 
 const currentDateAndTime = () => {
@@ -129,7 +106,6 @@ export default {
   encryptPassword,
   comparePassword,
   generateMembershipId,
-  generateAccessAndRefreshToken,
   currentDateAndTime,
   calculateDueDate,
   extendDueDate,

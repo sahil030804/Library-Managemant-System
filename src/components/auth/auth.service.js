@@ -1,5 +1,4 @@
 import UserMdl from "../../models/user.js";
-import BlacklistMdl from "../../models/blacklist.js";
 import helper from "../../utils/helper.js";
 
 const registerUser = async (reqBody) => {
@@ -33,10 +32,6 @@ const registerUser = async (reqBody) => {
 
     const member = await newMember.save();
 
-    const accessAndRefreshToken = await helper.generateAccessAndRefreshToken(
-      member._id
-    );
-
     const userDetails = {
       _id: member._id,
       name: member.name,
@@ -51,8 +46,7 @@ const registerUser = async (reqBody) => {
 
     return {
       userDetails,
-      accessToken: accessAndRefreshToken.accessToken,
-      refreshToken: accessAndRefreshToken.refreshToken,
+      user: member,
     };
   } catch (err) {
     throw new Error(err.message);
@@ -73,9 +67,6 @@ const loginUser = async (reqBody) => {
       throw new Error("INVALID_PASSWORD");
     }
 
-    const accessAndRefreshToken = await helper.generateAccessAndRefreshToken(
-      userFound._id
-    );
     const userDetail = {
       _id: userFound._id,
       name: userFound.name,
@@ -89,8 +80,7 @@ const loginUser = async (reqBody) => {
     };
     return {
       userDetail,
-      accessToken: accessAndRefreshToken.accessToken,
-      refreshToken: accessAndRefreshToken.refreshToken,
+      user: userFound,
     };
   } catch (err) {
     throw new Error(err.message);
@@ -99,19 +89,14 @@ const loginUser = async (reqBody) => {
 
 const logoutUser = async (req, res) => {
   try {
-    const userFound = await UserMdl.findById(req.user._id);
+    if (!req.session.user) {
+      throw new Error("ALREADY_LOGOUT");
+    }
     req.session.destroy((err) => {
       if (err) {
         throw new Error(err.message);
       }
     });
-    const blacklisted = await BlacklistMdl({
-      accessToken: req.accessToken,
-    });
-    await blacklisted.save();
-
-    userFound.refreshToken = null;
-    await userFound.save();
 
     res.clearCookie("connect.sid");
     return { message: "User logged out successfully" };

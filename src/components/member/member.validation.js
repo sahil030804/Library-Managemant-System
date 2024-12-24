@@ -47,10 +47,6 @@ const updateMember = Joi.object({
     "string.empty": "Name can't be null",
     "any.required": "name must be required",
   }),
-  email: Joi.string().email().required().messages({
-    "string.empty": "Email id can't be null",
-    "any.required": "Email id must be required",
-  }),
   phone: Joi.string()
     .required()
     .pattern(/^[0-9]{10}$/)
