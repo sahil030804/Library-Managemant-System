@@ -119,13 +119,24 @@ const removeBook = async (req) => {
   }
 };
 
-const getAllBooks = async () => {
+const getAllBooks = async (req) => {
   try {
-    const allBooks = await BookMdl.find();
-    if (allBooks.length === 0) {
-      throw new Error("EMPTY_BOOK_DB");
-    }
-    return { allBooks };
+    const { page = 1, limit = 15 } = req.body;
+    let filteredBooks = await BookMdl.find();
+
+    const startIndex = (page - 1) * limit;
+    const paginatedBooks = filteredBooks.slice(startIndex, startIndex + limit);
+
+    const totalBooks = filteredBooks.length;
+    const totalPages = Math.ceil(totalBooks / limit);
+
+    return {
+      totalBooks,
+      totalPages,
+      currentPage: page,
+      booksPerPage: limit,
+      books: paginatedBooks,
+    };
   } catch (err) {
     throw new Error(err.message);
   }

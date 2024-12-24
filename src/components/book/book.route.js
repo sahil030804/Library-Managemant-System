@@ -38,10 +38,21 @@ router.get("/:id", bookController.getSinglebook);
 router.post(
   "/borrow",
   auth.userAuthenticate,
+  auth.accessRole([USER_ROLE.MEMBER]),
   auth.memberStatusCheck,
   borrowController.borrowBook
 );
-router.post("/return", auth.userAuthenticate, borrowController.returnBook);
-router.post("/extend", auth.userAuthenticate, borrowController.extendBorrowing);
+router.post(
+  "/return",
+  auth.userAuthenticate,
+  auth.accessRole([USER_ROLE.MEMBER]),
+  borrowController.returnBook
+);
+router.post(
+  "/extend",
+  auth.userAuthenticate,
+  auth.accessRole([USER_ROLE.MEMBER]),
+  borrowController.extendBorrowing
+);
 
 export default router;
