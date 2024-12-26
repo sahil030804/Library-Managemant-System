@@ -36,12 +36,12 @@ const borrowBook = async (req) => {
       status: BORROW_STATUS.BORROWED,
       fine: 0,
     });
-    const bookBorrowed = await borrowBook.save();
+    await borrowBook.save();
 
     bookFound.availableCopies -= 1;
     await bookFound.save();
 
-    return bookBorrowed;
+    return { message: "Book Borrowed Successfully" };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -77,7 +77,7 @@ const returnBook = async (req) => {
     const dueDate = borrowRecordFound.dueDate;
     const returnDate = new Date();
     const fine = helper.calculateFine(dueDate, returnDate);
-    const bookReturned = await BorrowMdl.findByIdAndUpdate(
+    await BorrowMdl.findByIdAndUpdate(
       borrowId,
       {
         returnDate: currentTime,
@@ -87,7 +87,7 @@ const returnBook = async (req) => {
       { new: true }
     );
 
-    return { message: "Book successfully returned", bookReturned };
+    return { message: "Book Returned Successfully" };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -101,7 +101,7 @@ const extendBorrowing = async (req) => {
     }
     const borrowedData = await BorrowMdl.findOne({ _id: borrowId });
     if (borrowedData.userId.toString() !== req.user._id) {
-      throw new Error("This book is not borrowed by you");
+      throw new Error("YOU_NOT_BORROWED");
     }
     if (!borrowedData) {
       throw new Error("NO_HISTORY");
@@ -118,9 +118,9 @@ const extendBorrowing = async (req) => {
       },
       { new: true }
     );
-    const borrowingExtended = await extendTime.save();
+    await extendTime.save();
 
-    return borrowingExtended;
+    return { message: "Borrowing period extended successfully" };
   } catch (err) {
     throw new Error(err.message);
   }
