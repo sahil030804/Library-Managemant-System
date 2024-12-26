@@ -49,7 +49,7 @@ const addBook = async (reqBody) => {
       addedAt: bookData.addedAt,
     };
 
-    return { bookDetail };
+    return { message: "Book added successfully", bookDetail };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -78,22 +78,28 @@ const updateBook = async (req) => {
   if (bookFound.ISBN !== ISBN) {
     throw new Error("SAME_ISBN");
   }
-  const updatedBook = await BookMdl.findByIdAndUpdate(
+  const authorsArr = authors.split(",");
+  const newAvailableCopies = Math.max(
+    bookFound.availableCopies + (totalCopies - bookFound.totalCopies),
+    0
+  );
+  await BookMdl.findByIdAndUpdate(
     bookId,
     {
       title,
-      authors: authors.split(","),
+      authors: authorsArr,
       ISBN,
       category,
       publicationYear,
       totalCopies,
+      availableCopies: newAvailableCopies,
       shelfNumber,
       lastUpdated: currentTime,
     },
     { new: true }
   );
 
-  return { updatedBookInfo: updatedBook };
+  return { message: "Book updated successfully" };
 };
 
 const removeBook = async (req) => {

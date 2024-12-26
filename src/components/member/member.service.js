@@ -20,14 +20,12 @@ const addMember = async (reqBody) => {
 
     if (emailExistCheck) {
       throw new Error("USER_EXIST");
-      
     }
 
     const hashedPassword = helper.encryptPassword(password);
 
     if (!helper.comparePassword(confirm_password, hashedPassword)) {
       throw new Error("PASSWORD_NOT_SAME");
-      
     }
     const generateMembershipId = helper.generateMembershipId();
 
@@ -43,25 +41,11 @@ const addMember = async (reqBody) => {
       createdAt: new Date().toISOString(),
     });
 
-    const member = await newMember.save();
+    await newMember.save();
 
-    const userDetails = {
-      _id: member._id,
-      name: member.name,
-      email: member.email,
-      password: member.password,
-      phone: member.phone,
-      address: member.address,
-      role: member.role,
-      membershipId: member.membershipId,
-      status: member.status,
-      createdAt: member.createdAt,
-    };
-
-    return userDetails;
+    return { message: "User added successfully" };
   } catch (err) {
     throw new Error(err.message);
-    
   }
 };
 
@@ -71,7 +55,6 @@ const allMembers = async () => {
 
     if (allMembers.length === 0) {
       throw new Error("NO_MEMBER_FOUND");
-      
     }
 
     const members = allMembers.map((member) => {
@@ -90,7 +73,6 @@ const allMembers = async () => {
     return { members };
   } catch (err) {
     throw new Error(err.message);
-    
   }
 };
 
@@ -99,12 +81,10 @@ const singleMember = async (req) => {
   try {
     if (memberId.length !== 24) {
       throw new Error("INVALID_MEMBER_ID");
-      
     }
     const memberData = await UserMdl.findById(memberId);
     if (!memberData) {
       throw new Error("NO_MEMBER_FOUND");
-      
     }
     const member = {
       _id: memberData._id,
@@ -120,7 +100,6 @@ const singleMember = async (req) => {
     return { member };
   } catch (err) {
     throw new Error(err.message);
-    
   }
 };
 
@@ -131,13 +110,11 @@ const updateMember = async (req) => {
     const userData = await UserMdl.findById(req.user._id);
     if (memberId.length !== 24) {
       throw new Error("INVALID_MEMBER_ID");
-      
     }
 
     const memberFound = await UserMdl.findById(memberId);
     if (!memberFound) {
       throw new Error("NO_MEMBER_FOUND");
-      
     }
 
     let updateMember;
@@ -169,19 +146,17 @@ const updateMember = async (req) => {
     return { message: `Updated successfully` };
   } catch (err) {
     throw new Error(err.message);
-    
   }
 };
 
 const viewHistory = async (req) => {
   try {
-    const fetchHistory = await BorrowMdl
-      .find({ userId: req.params.id })
-      .populate([{ path: "bookId", select: "-_id title authors" }]);
+    const fetchHistory = await BorrowMdl.find({
+      userId: req.params.id,
+    }).populate([{ path: "bookId", select: "-_id title authors" }]);
 
     if (fetchHistory.length === 0) {
       throw new Error("NO_HISTORY");
-      
     }
 
     const history = fetchHistory.map((history) => {
@@ -202,7 +177,6 @@ const viewHistory = async (req) => {
     return { history };
   } catch (err) {
     throw new Error(err.message);
-    
   }
 };
 export default {

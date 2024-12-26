@@ -4,7 +4,10 @@ const registerUser = async (req, res, next) => {
   try {
     const memberData = await authService.registerUser(req.body);
     req.session.user = memberData.user;
-    res.status(201).json(memberData.userDetails);
+    res.status(201).json({
+      message: "User registered successfully",
+      userDetail: memberData.userDetail,
+    });
   } catch (error) {
     next(error);
   }
@@ -13,7 +16,10 @@ const loginUser = async (req, res, next) => {
   try {
     const memberData = await authService.loginUser(req.body);
     req.session.user = memberData.user;
-    res.status(200).json(memberData.userDetail);
+    res.status(200).json({
+      message: "User loggedin successfully",
+      userDetail: memberData.userDetail,
+    });
   } catch (error) {
     next(error);
   }

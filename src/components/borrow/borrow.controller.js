@@ -2,8 +2,8 @@ import borrowService from "./borrow.service.js";
 
 const borrowBook = async (req, res, next) => {
   try {
-    const borrowData = await borrowService.borrowBook(req);
-    res.status(200).json({ borrowedBook: borrowData });
+    const bookBorrowed = await borrowService.borrowBook(req);
+    res.status(200).json(bookBorrowed);
   } catch (error) {
     next(error);
   }
@@ -11,8 +11,8 @@ const borrowBook = async (req, res, next) => {
 
 const returnBook = async (req, res, next) => {
   try {
-    const returnData = await borrowService.returnBook(req);
-    res.status(200).json(returnData);
+    const bookReturned = await borrowService.returnBook(req);
+    res.status(200).json(bookReturned);
   } catch (error) {
     next(error);
   }

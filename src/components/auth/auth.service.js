@@ -32,7 +32,7 @@ const registerUser = async (reqBody) => {
 
     const member = await newMember.save();
 
-    const userDetails = {
+    const userDetail = {
       _id: member._id,
       name: member.name,
       email: member.email,
@@ -45,7 +45,7 @@ const registerUser = async (reqBody) => {
     };
 
     return {
-      userDetails,
+      userDetail,
       user: member,
     };
   } catch (err) {

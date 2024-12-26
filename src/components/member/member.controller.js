@@ -3,7 +3,7 @@ import memberService from "./member.service.js";
 const addMember = async (req, res, next) => {
   try {
     const memberData = await memberService.addMember(req.body);
-    res.status(201).json({ MemberDetails: memberData });
+    res.status(201).json(memberData);
   } catch (error) {
     next(error);
   }
