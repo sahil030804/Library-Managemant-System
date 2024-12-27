@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import { createClient } from "redis";
 import { RedisStore } from "connect-redis";
 import cors from "cors";
+import fineCalculationJob from "./src/jobs/fineCalculation.js";
 
 mongoose
   .connect(env.db.DB_URL)
@@ -53,6 +54,8 @@ app.use(
 );
 
 app.use(cookieParser());
+
+fineCalculationJob.start(); //cron job for fine calculation daily at 12:00 am midnight
 
 app.use("/api", router);
 app.use(errorHandler);

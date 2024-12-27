@@ -38,7 +38,7 @@ const addMember = async (reqBody) => {
       address: address,
       membershipId: generateMembershipId,
       status: status,
-      createdAt: new Date().toISOString(),
+      createdAt: helper.currentDateAndTime(),
     });
 
     await newMember.save();

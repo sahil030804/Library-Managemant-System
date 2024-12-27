@@ -57,12 +57,8 @@ const currentDateAndTime = () => {
 const calculateDueDate = (borrowedDate) => {
   try {
     const dueDate = new Date(borrowedDate);
-    // console.log(dueDate.toLocaleString());
-
     const dueTime = Number(env.borrow.DUE_TIME);
     dueDate.setDate(dueDate.getDate() + dueTime);
-    // console.log(dueDate.toLocaleString());
-
     return dueDate;
   } catch (err) {
     throw new Error(err.message);
@@ -72,33 +68,14 @@ const calculateDueDate = (borrowedDate) => {
 const extendDueDate = (dueDate) => {
   try {
     const extendDueDate = new Date(dueDate);
-    // console.log(extendDueDate.toLocaleString());
-
-    const ExtendTime = Number(env.borrow.EXTEND_TIME);
-
-    extendDueDate.setDate(dueDate.getDate() + ExtendTime);
-    // console.log(extendDueDate.toLocaleString());
-
+    const extendTime = Number(env.borrow.EXTEND_TIME);
+    extendDueDate.setDate(dueDate.getDate() + extendTime);
     return extendDueDate;
   } catch (err) {
     throw new Error(err.message);
   }
 };
 
-const calculateFine = (dueDate, returnDate) => {
-  try {
-    const fineValue = env.borrow.FINE;
-    const dateDifference = Math.floor((returnDate - dueDate) / 60 / 1000);
-
-    const fine = dateDifference * fineValue;
-    if (fine <= 0) {
-      return 0;
-    }
-    return fine;
-  } catch (err) {
-    throw new Error(err.message);
-  }
-};
 export default {
   emailExistingCheck,
   bookExistingCheck,
@@ -109,5 +86,4 @@ export default {
   currentDateAndTime,
   calculateDueDate,
   extendDueDate,
-  calculateFine,
 };
