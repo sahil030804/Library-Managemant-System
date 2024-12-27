@@ -1,5 +1,7 @@
 import UserMdl from "../../models/user.js";
 import helper from "../../utils/helper.js";
+import sendMail from "../../utils/emailService.js";
+import registrationTemplate from "../../mailTemplates/registrationTemplate.js";
 
 const registerUser = async (reqBody) => {
   const { name, email, password, confirm_password, phone, address } = reqBody;
@@ -29,6 +31,12 @@ const registerUser = async (reqBody) => {
     });
 
     const member = await newMember.save();
+    await sendMail(
+      email,
+      "Registration Successfull",
+      "",
+      registrationTemplate(name)
+    );
 
     const userDetail = {
       _id: member._id,
