@@ -25,6 +25,10 @@ const env = {
     REDIS_HOST: process.env.REDIS_HOST,
     REDIS_PORT: process.env.REDIS_PORT,
   },
+  mail: {
+    MAIL_FROM: process.env.MAIL_FROM,
+    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+  },
 };
 
 export default env;

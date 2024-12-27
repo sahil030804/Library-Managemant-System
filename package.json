@@ -23,6 +23,7 @@
     "express-session": "^1.18.1",
     "joi": "^17.13.3",
     "mongoose": "^8.8.4",
+    "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
     "redis": "^4.7.0"
   }
