@@ -33,10 +33,10 @@ router.put(
   validation.validate(memberValidation.updateMember),
   memberController.updateMember
 );
-router.get(
-  "/:id/history",
+router.post(
+  "/history",
   auth.userAuthenticate,
-  auth.accessRole([USER_ROLE.ADMIN, USER_ROLE.MEMBER]),
+  auth.accessRole([USER_ROLE.ADMIN]),
   memberController.viewHistory
 );
 

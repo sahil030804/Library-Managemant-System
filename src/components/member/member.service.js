@@ -150,31 +150,59 @@ const updateMember = async (req) => {
 };
 
 const viewHistory = async (req) => {
+  const { page = 1, limit = 10, search = " " } = req.body;
   try {
-    const fetchHistory = await BorrowMdl.find({
-      userId: req.params.id,
-    }).populate([{ path: "bookId", select: "-_id title authors" }]);
+    let filteredBorrows = await BorrowMdl.find().populate([
+      {
+        path: "bookId",
+        select: "-_id title ISBN",
+      },
+      {
+        path: "userId",
+        select: "-_id name email phone",
+      },
+    ]);
 
-    if (fetchHistory.length === 0) {
+    if (search.toLowerCase().replaceAll(" ", "")) {
+      filteredBorrows = filteredBorrows.filter((borrow) => {
+        if (
+          borrow.userId.name
+            .toLowerCase()
+            .replaceAll(" ", "")
+            .includes(search.toLowerCase().replaceAll(" ", ""))
+        ) {
+          return true;
+        }
+        if (
+          borrow.userId.email
+            .toLowerCase()
+            .replaceAll(" ", "")
+            .includes(search.toLowerCase().replaceAll(" ", ""))
+        ) {
+          return true;
+        }
+        if (
+          borrow.userId.phone
+            .toString()
+            .replaceAll(" ", "")
+            .includes(search.toLowerCase().replaceAll(" ", ""))
+        ) {
+          return true;
+        }
+      });
+    }
+    if (filteredBorrows.length === 0) {
       throw new Error("NO_HISTORY");
     }
-
-    const history = fetchHistory.map((history) => {
-      return {
-        _id: history._id,
-        bookDetails: {
-          title: history.bookId.title,
-          authors: history.bookId.authors,
-        },
-        borrowDate: history.borrowDate,
-        dueDate: history.dueDate,
-        returnDate: history.returnDate,
-        status: history.status,
-        fine: history.fine,
-      };
-    });
-
-    return { history };
+    const startIndex = (page - 1) * limit;
+    const paginatedBorrows = filteredBorrows.slice(
+      startIndex,
+      startIndex + limit
+    );
+    if (paginatedBorrows.length === 0) {
+      throw new Error("NO_MORE_HISTORY");
+    }
+    return paginatedBorrows;
   } catch (err) {
     throw new Error(err.message);
   }

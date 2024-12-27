@@ -35,7 +35,7 @@ const updateMember = async (req, res, next) => {
 const viewHistory = async (req, res, next) => {
   try {
     const history = await memberService.viewHistory(req);
-    res.status(200).json(history);
+    res.status(200).json({ history });
   } catch (error) {
     next(error);
   }
