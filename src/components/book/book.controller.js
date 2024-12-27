@@ -46,7 +46,7 @@ const getSinglebook = async (req, res, next) => {
 const searchBook = async (req, res, next) => {
   try {
     const searchedBooks = await bookService.searchBook(req);
-    res.status(200).json({ searchedBooks: searchedBooks });
+    res.status(200).json({ searchedBooks });
   } catch (err) {
     next(err);
   }
