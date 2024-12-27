@@ -125,4 +125,20 @@ const extendBorrowing = async (req) => {
     throw new Error(err.message);
   }
 };
-export default { borrowBook, returnBook, extendBorrowing };
+
+const history = async (req) => {
+  const userId = req.user._id;
+  try {
+    const borrowHistory = await BorrowMdl.find({ userId }).populate([
+      { path: "bookId", select: "-_id title" },
+      { path: "userId", select: "-_id name email phone" },
+    ]);
+    if (borrowHistory.length === 0) {
+      throw new Error("NO_HISTORY");
+    }
+    return borrowHistory;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+export default { borrowBook, returnBook, extendBorrowing, history };

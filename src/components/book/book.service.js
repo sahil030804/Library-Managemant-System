@@ -129,7 +129,9 @@ const getAllBooks = async (req) => {
   try {
     const { page = 1, limit = 15 } = req.body;
     let filteredBooks = await BookMdl.find();
-
+    if (filteredBooks.length === 0) {
+      throw new Error("EMPTY_BOOK_DB");
+    }
     const startIndex = (page - 1) * limit;
     const paginatedBooks = filteredBooks.slice(startIndex, startIndex + limit);
 
