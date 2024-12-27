@@ -30,7 +30,12 @@ router.delete(
   auth.accessRole([USER_ROLE.ADMIN]),
   bookController.removeBook
 );
-
+router.get(
+  "/borrowed",
+  auth.userAuthenticate,
+  auth.accessRole([USER_ROLE.MEMBER]),
+  borrowController.history
+);
 router.get("/search", bookController.searchBook);
 router.get("/", bookController.getAllbooks);
 router.get("/:id", bookController.getSinglebook);

@@ -25,5 +25,13 @@ const extendBorrowing = async (req, res, next) => {
     next(error);
   }
 };
+const history = async (req, res, next) => {
+  try {
+    const history = await borrowService.history(req);
+    res.status(200).json({ history });
+  } catch (error) {
+    next(error);
+  }
+};
 
-export default { borrowBook, returnBook, extendBorrowing };
+export default { borrowBook, returnBook, extendBorrowing, history };
