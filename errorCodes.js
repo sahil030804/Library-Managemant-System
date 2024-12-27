@@ -159,6 +159,13 @@ const errorCodes = {
       message: "Member id is invalid",
     },
   },
+  NO_MORE_HISTORY: {
+    httpStatusCode: 404,
+    body: {
+      code: "mo_more_history",
+      message: "No more borrows history",
+    },
+  },
 
   //Borrow feature related error
   INVALID_BORROW_ID: {
