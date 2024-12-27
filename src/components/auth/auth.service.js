@@ -18,8 +18,6 @@ const registerUser = async (reqBody) => {
 
     const generateMembershipId = helper.generateMembershipId();
 
-    const currentTime = helper.currentDateAndTime();
-
     const newMember = await UserMdl({
       name: name,
       email: email,
@@ -27,7 +25,7 @@ const registerUser = async (reqBody) => {
       phone: phone,
       address: address,
       membershipId: generateMembershipId,
-      createdAt: currentTime,
+      createdAt: helper.currentDateAndTime(),
     });
 
     const member = await newMember.save();

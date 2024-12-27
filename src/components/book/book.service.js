@@ -1,8 +1,6 @@
 import BookMdl from "../../models/book.js";
 import helper from "../../utils/helper.js";
 
-const currentTime = helper.currentDateAndTime();
-
 const addBook = async (reqBody) => {
   const {
     title,
@@ -31,7 +29,7 @@ const addBook = async (reqBody) => {
       totalCopies,
       availableCopies: totalCopies,
       shelfNumber,
-      addedAt: currentTime,
+      addedAt: helper.currentDateAndTime(),
       lastUpdated: null,
     });
 
@@ -94,7 +92,7 @@ const updateBook = async (req) => {
       totalCopies,
       availableCopies: newAvailableCopies,
       shelfNumber,
-      lastUpdated: currentTime,
+      lastUpdated: helper.currentDateAndTime(),
     },
     { new: true }
   );

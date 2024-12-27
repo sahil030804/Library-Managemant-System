@@ -3,8 +3,6 @@ import BorrowMdl from "../../models/borrowing.js";
 import helper from "../../utils/helper.js";
 import { BORROW_STATUS } from "../../utils/constant.js";
 
-const currentTime = helper.currentDateAndTime();
-
 const borrowBook = async (req) => {
   const userId = req.user._id;
   const { bookId } = req.body;
@@ -26,21 +24,19 @@ const borrowBook = async (req) => {
     if (bookFound.availableCopies === 0) {
       throw new Error("BOOK_NOT_AVAILABLE");
     }
-    const dueDate = helper.calculateDueDate(new Date());
+
     const borrowBook = await BorrowMdl({
       bookId: bookId,
       userId: userId,
-      borrowDate: currentTime,
-      dueDate: dueDate,
+      borrowDate: helper.currentDateAndTime(),
+      dueDate: helper.calculateDueDate(new Date()),
       returnDate: null,
       status: BORROW_STATUS.BORROWED,
       fine: 0,
     });
     await borrowBook.save();
-
     bookFound.availableCopies -= 1;
     await bookFound.save();
-
     return { message: "Book Borrowed Successfully" };
   } catch (err) {
     throw new Error(err.message);
@@ -74,15 +70,11 @@ const returnBook = async (req) => {
       throw new Error("BOOK_RETURNED");
     }
 
-    const dueDate = borrowRecordFound.dueDate;
-    const returnDate = new Date();
-    const fine = helper.calculateFine(dueDate, returnDate);
     await BorrowMdl.findByIdAndUpdate(
       borrowId,
       {
-        returnDate: currentTime,
+        returnDate: helper.currentDateAndTime(),
         status: BORROW_STATUS.RETURNED,
-        fine: fine,
       },
       { new: true }
     );
@@ -110,11 +102,10 @@ const extendBorrowing = async (req) => {
     if (borrowedData.status === BORROW_STATUS.RETURNED) {
       throw new Error("BOOK_RETURNED");
     }
-    const extendDueDate = helper.extendDueDate(borrowedData.dueDate);
     const extendTime = await BorrowMdl.findByIdAndUpdate(
       borrowId,
       {
-        dueDate: extendDueDate,
+        dueDate: helper.extendDueDate(borrowedData.dueDate),
       },
       { new: true }
     );
