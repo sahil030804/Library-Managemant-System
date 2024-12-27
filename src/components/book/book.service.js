@@ -165,24 +165,24 @@ const getSingleBook = async (req) => {
 };
 
 const searchBook = async (req) => {
-  const query = req.query.q;
-
+  const query = req.query.q.toLowerCase().replaceAll(" ", "");
   try {
-    if (query) {
-      const bookFound = await BookMdl.find({
-        $or: [
-          { title: { $regex: query, $options: "i" } },
-          { authors: { $regex: query, $options: "i" } },
-          { category: { $regex: query, $options: "i" } },
-        ],
-      });
-
-      if (bookFound.length === 0) {
-        throw new Error("BOOK_NOT_FOUND");
+    const allBooks = await BookMdl.find();
+    const searchedBook = allBooks.filter((book) => {
+      if (book.title.toLowerCase().replaceAll(" ", "").includes(query)) {
+        return true;
       }
-
-      return bookFound;
+      if (book.category.toLowerCase().replaceAll(" ", "").includes(query)) {
+        return true;
+      }
+      return book.authors.some((author) => {
+        return author.toLowerCase().replaceAll(" ", "").includes(query);
+      });
+    });
+    if (searchedBook.length === 0) {
+      throw new Error("BOOK_NOT_FOUND");
     }
+    return searchedBook;
   } catch (err) {
     throw new Error(err.message);
   }
