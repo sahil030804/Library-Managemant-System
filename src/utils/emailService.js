@@ -2,27 +2,26 @@ import nodemailer from "nodemailer";
 import env from "../config/index.js";
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 587,
+  host: env.mail.MAIL_HOST,
+  port: env.mail.MAIL_PORT,
   secure: false,
   auth: {
-    user: "apikey",
-    pass: env.mail.SENDGRID_API_KEY,
+    user: env.mail.SENDER_EMAIL_ID,
+    pass: env.mail.SENDER_EMAIL_PASSWORD,
   },
 });
 
 const sendMail = async (to, subject, text = "", html = "") => {
   const mailOptions = {
-    from: env.mail.MAIL_FROM,
+    from: env.mail.SENDER_EMAIL_ID,
     to,
     subject,
     text,
     html,
   };
-
   try {
     const mail = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", mail.accepted);
+    console.log("Email sent:", mail.response);
     return mail;
   } catch (err) {
     return new Error(err.message);

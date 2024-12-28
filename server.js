@@ -9,6 +9,7 @@ import { createClient } from "redis";
 import { RedisStore } from "connect-redis";
 import cors from "cors";
 import fineCalculationJob from "./src/jobs/fineCalculation.js";
+import dueDateReminder from "./src/jobs/dueDateReminder.js";
 
 mongoose
   .connect(env.db.DB_URL)
@@ -56,6 +57,7 @@ app.use(
 app.use(cookieParser());
 
 fineCalculationJob.start(); //cron job for fine calculation daily at 12:00 am midnight
+dueDateReminder.start(); // cron job for send mail of due date reminder before duedate
 
 app.use("/api", router);
 app.use(errorHandler);
