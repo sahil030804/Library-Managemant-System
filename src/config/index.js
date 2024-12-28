@@ -26,8 +26,15 @@ const env = {
     REDIS_PORT: process.env.REDIS_PORT,
   },
   mail: {
-    MAIL_FROM: process.env.MAIL_FROM,
-    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+    MAIL_HOST: process.env.MAIL_HOST,
+    MAIL_PORT: process.env.MAIL_PORT,
+    SENDER_EMAIL_ID: process.env.SENDER_EMAIL_ID,
+    SENDER_EMAIL_PASSWORD: process.env.SENDER_EMAIL_PASSWORD,
+    MAIL_API_KEY: process.env.MAIL_API_KEY,
+  },
+  job: {
+    FINE_CALCULATOR_SCHEDULE: process.env.FINE_CALCULATOR_SCHEDULE,
+    DUE_DATE_REMINDER_SCHEDULE: process.env.DUE_DATE_REMINDER_SCHEDULE,
   },
 };
 
