@@ -159,11 +159,11 @@ const errorCodes = {
       message: "Member id is invalid",
     },
   },
-  NO_MORE_HISTORY: {
+  NO_MORE_DATA: {
     httpStatusCode: 404,
     body: {
-      code: "mo_more_history",
-      message: "No more borrows history",
+      code: "mo_more_data",
+      message: "No more data",
     },
   },
 
@@ -187,6 +187,13 @@ const errorCodes = {
     body: {
       code: "no_borrow_history",
       message: "No borrow history found",
+    },
+  },
+  NO_OVERDUES: {
+    httpStatusCode: 404,
+    body: {
+      code: "no_overdue_history",
+      message: "No overdues",
     },
   },
   BOOK_NOT_BORROWED: {

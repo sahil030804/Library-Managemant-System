@@ -159,7 +159,7 @@ const viewHistory = async (req) => {
       },
       {
         path: "userId",
-        select: "-_id name email phone",
+        select: "-_id name email phone address",
       },
     ]);
 
@@ -200,7 +200,7 @@ const viewHistory = async (req) => {
       startIndex + limit
     );
     if (paginatedBorrows.length === 0) {
-      throw new Error("NO_MORE_HISTORY");
+      throw new Error("NO_MORE_DATA");
     }
     return paginatedBorrows;
   } catch (err) {

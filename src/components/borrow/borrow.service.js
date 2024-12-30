@@ -132,4 +132,66 @@ const history = async (req) => {
     throw new Error(err.message);
   }
 };
-export default { borrowBook, returnBook, extendBorrowing, history };
+
+const overdueHistory = async (req) => {
+  const { page = 1, limit = 15, search = "" } = req.body;
+  try {
+    let allOverdueBooks = await BorrowMdl.find({
+      status: "borrowed",
+      dueDate: { $lt: helper.currentDateAndTime() },
+    }).populate([
+      { path: "bookId", select: "-_id title ISBN" },
+      { path: "userId", select: "-_id name email phone address" },
+    ]);
+
+    if (search.toLowerCase().replaceAll(" ", "")) {
+      allOverdueBooks = allOverdueBooks.filter((borrow) => {
+        if (
+          borrow.userId.name
+            .toLowerCase()
+            .replaceAll(" ", "")
+            .includes(search.toLowerCase().replaceAll(" ", ""))
+        ) {
+          return true;
+        }
+        if (
+          borrow.userId.email
+            .toLowerCase()
+            .replaceAll(" ", "")
+            .includes(search.toLowerCase().replaceAll(" ", ""))
+        ) {
+          return true;
+        }
+        if (
+          borrow.userId.phone
+            .toString()
+            .replaceAll(" ", "")
+            .includes(search.toLowerCase().replaceAll(" ", ""))
+        ) {
+          return true;
+        }
+      });
+    }
+    if (allOverdueBooks.length === 0) {
+      throw new Error("NO_OVERDUES");
+    }
+    const startIndex = (page - 1) * limit;
+    const paginatedOverdues = allOverdueBooks.slice(
+      startIndex,
+      startIndex + limit
+    );
+    if (paginatedOverdues.length === 0) {
+      throw new Error("NO_MORE_DATA");
+    }
+    return paginatedOverdues;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+export default {
+  borrowBook,
+  returnBook,
+  extendBorrowing,
+  history,
+  overdueHistory,
+};

@@ -33,5 +33,19 @@ const history = async (req, res, next) => {
     next(error);
   }
 };
+const overdueHistory = async (req, res, next) => {
+  try {
+    const history = await borrowService.overdueHistory(req);
+    res.status(200).json({ history });
+  } catch (error) {
+    next(error);
+  }
+};
 
-export default { borrowBook, returnBook, extendBorrowing, history };
+export default {
+  borrowBook,
+  returnBook,
+  extendBorrowing,
+  history,
+  overdueHistory,
+};

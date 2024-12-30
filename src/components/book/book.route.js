@@ -36,6 +36,12 @@ router.get(
   auth.accessRole([USER_ROLE.MEMBER]),
   borrowController.history
 );
+router.post(
+  "/overdue",
+  auth.userAuthenticate,
+  auth.accessRole([USER_ROLE.ADMIN]),
+  borrowController.overdueHistory
+);
 router.get("/search", bookController.searchBook);
 router.get("/", bookController.getAllbooks);
 router.get("/:id", bookController.getSinglebook);
