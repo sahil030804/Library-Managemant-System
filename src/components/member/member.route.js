@@ -26,6 +26,12 @@ router.get(
   auth.accessRole([USER_ROLE.ADMIN]),
   memberController.singleMember
 );
+router.patch(
+  "/toggle-admin",
+  auth.userAuthenticate,
+  auth.accessRole([USER_ROLE.ADMIN]),
+  memberController.toggleAdmin
+);
 router.put(
   "/:id",
   auth.userAuthenticate,

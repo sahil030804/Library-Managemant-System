@@ -40,6 +40,14 @@ const viewHistory = async (req, res, next) => {
     next(error);
   }
 };
+const toggleAdmin = async (req, res, next) => {
+  try {
+    const history = await memberService.toggleAdmin(req);
+    res.status(200).json(history);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export default {
   addMember,
@@ -47,4 +55,5 @@ export default {
   singleMember,
   updateMember,
   viewHistory,
+  toggleAdmin,
 };
