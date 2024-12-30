@@ -207,10 +207,23 @@ const viewHistory = async (req) => {
     throw new Error(err.message);
   }
 };
+
+const toggleAdmin = async (req) => {
+  const { userId, role } = req.body;
+  try {
+    await UserMdl.findByIdAndUpdate(userId, {
+      role,
+    });
+    return { message: "User changes saved" };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
 export default {
   addMember,
   allMembers,
   singleMember,
   updateMember,
   viewHistory,
+  toggleAdmin,
 };
