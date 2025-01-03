@@ -11,12 +11,12 @@ const addBook = async (reqBody) => {
     totalCopies,
     shelfNumber,
   } = reqBody;
-  const authorsArr = authors.split(",");
+  const authorsArr = authors.split(",").map((author) => author.trim());
 
   try {
-    const BookExistCheck = await helper.bookExistingCheck(ISBN);
+    const bookExistCheck = await helper.bookExistingCheck(ISBN);
 
-    if (BookExistCheck) {
+    if (bookExistCheck) {
       throw new Error("BOOK_EXIST");
     }
 
@@ -123,25 +123,41 @@ const removeBook = async (req) => {
   }
 };
 
-const getAllBooks = async (req) => {
+const getAllBooks = async (paginationCriteria) => {
+  const { page, limit, search } = paginationCriteria;
+  const sanitizedSearch = search.trim();
   try {
-    const { page = 1, limit = 15 } = req.body;
-    let filteredBooks = await BookMdl.find();
+    const query = {
+      $or: [
+        {
+          title: { $regex: sanitizedSearch, $options: "i" },
+        },
+        {
+          authors: {
+            $regex: sanitizedSearch,
+            $options: "i",
+          },
+        },
+        {
+          category: {
+            $regex: sanitizedSearch,
+            $options: "i",
+          },
+        },
+      ],
+    };
+
+    const options = {
+      limit: limit,
+      skip: (page - 1) * limit,
+    };
+    let filteredBooks = await BookMdl.find(query, null, options);
     if (filteredBooks.length === 0) {
       throw new Error("EMPTY_BOOK_DB");
     }
-    const startIndex = (page - 1) * limit;
-    const paginatedBooks = filteredBooks.slice(startIndex, startIndex + limit);
-
-    const totalBooks = filteredBooks.length;
-    const totalPages = Math.ceil(totalBooks / limit);
 
     return {
-      totalBooks,
-      totalPages,
-      currentPage: page,
-      booksPerPage: limit,
-      books: paginatedBooks,
+      books: filteredBooks,
     };
   } catch (err) {
     throw new Error(err.message);
@@ -154,11 +170,11 @@ const getSingleBook = async (req) => {
     if (bookId.length !== 24) {
       throw new Error("INVALID_BOOK_ID");
     }
-    const bookFound = await BookMdl.findById(bookId);
-    if (!bookFound) {
+    const book = await BookMdl.findById(bookId);
+    if (!book) {
       throw new Error("BOOK_NOT_FOUND");
     }
-    return bookFound;
+    return { book };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -182,7 +198,7 @@ const searchBook = async (req) => {
     if (searchedBook.length === 0) {
       throw new Error("BOOK_NOT_FOUND");
     }
-    return searchedBook;
+    return { searchedBook };
   } catch (err) {
     throw new Error(err.message);
   }

@@ -3,20 +3,16 @@ import helper from "../../utils/helper.js";
 import sendMail from "../../utils/emailService.js";
 import registrationTemplate from "../../mailTemplates/registrationTemplate.js";
 
-const registerUser = async (reqBody) => {
-  const { name, email, password, confirm_password, phone, address } = reqBody;
+const registerUser = async (userData) => {
+  const { name, email, password, phone, address } = userData;
   try {
     const emailExistCheck = await helper.emailExistingCheck(email);
 
     if (emailExistCheck) {
-      throw new Error("USER_EXIST");
+      throw new Error("EMAIL_EXIST");
     }
 
     const hashedPassword = helper.encryptPassword(password);
-
-    if (!helper.comparePassword(confirm_password, hashedPassword)) {
-      throw new Error("PASSWORD_NOT_SAME");
-    }
 
     const generateMembershipId = helper.generateMembershipId();
 
@@ -50,17 +46,14 @@ const registerUser = async (reqBody) => {
       createdAt: member.createdAt,
     };
 
-    return {
-      userDetail,
-      user: member,
-    };
+    return { message: "User registered successfully", userDetail };
   } catch (err) {
     throw new Error(err.message);
   }
 };
 
-const loginUser = async (reqBody) => {
-  const { email, password } = reqBody;
+const loginUser = async (userData) => {
+  const { email, password } = userData;
 
   try {
     const userFound = await UserMdl.findOne({ email });
@@ -84,10 +77,7 @@ const loginUser = async (reqBody) => {
       status: userFound.status,
       createdAt: userFound.createdAt,
     };
-    return {
-      userDetail,
-      user: userFound,
-    };
+    return { message: "User loggedin successfully", userDetail };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -95,7 +85,7 @@ const loginUser = async (reqBody) => {
 
 const logoutUser = async (req, res) => {
   try {
-    if (!req.session.user) {
+    if (!req.session.userId) {
       throw new Error("ALREADY_LOGOUT");
     }
     req.session.destroy((err) => {
@@ -112,7 +102,7 @@ const logoutUser = async (req, res) => {
 };
 
 const resetPassword = async (req) => {
-  const { current_password, new_password, confirm_password } = req.body;
+  const { current_password, new_password } = req.body;
   try {
     const userFound = await UserMdl.findOne({ _id: req.user._id });
 
@@ -124,9 +114,6 @@ const resetPassword = async (req) => {
     }
 
     const hashedPassword = helper.encryptPassword(new_password);
-    if (!helper.comparePassword(confirm_password, hashedPassword)) {
-      throw new Error("PASSWORD_NOT_SAME");
-    }
 
     await UserMdl.findByIdAndUpdate(userFound._id, {
       password: hashedPassword,

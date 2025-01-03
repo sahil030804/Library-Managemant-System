@@ -60,7 +60,7 @@ const returnBook = async (req) => {
     } else {
       throw new Error("BOOK_NOT_BORROWED");
     }
-    if (borrowRecordFound.userId.toString() !== req.user._id) {
+    if (borrowRecordFound.userId.toString() !== req.user._id.toString()) {
       throw new Error("YOU_NOT_BORROWED");
     }
     if (
@@ -91,8 +91,9 @@ const extendBorrowing = async (req) => {
     if (borrowId.length !== 24) {
       throw new Error("INVALID_BORROW_ID");
     }
-    const borrowedData = await BorrowMdl.findOne({ _id: borrowId });
-    if (borrowedData.userId.toString() !== req.user._id) {
+    const borrowedData = await BorrowMdl.findById(borrowId);
+
+    if (borrowedData.userId.toString() !== req.user._id.toString()) {
       throw new Error("YOU_NOT_BORROWED");
     }
     if (!borrowedData) {
@@ -117,7 +118,7 @@ const extendBorrowing = async (req) => {
   }
 };
 
-const history = async (req) => {
+const borrowHistory = async (req) => {
   const userId = req.user._id;
   try {
     const borrowHistory = await BorrowMdl.find({ userId }).populate([
@@ -133,57 +134,79 @@ const history = async (req) => {
   }
 };
 
-const overdueHistory = async (req) => {
-  const { page = 1, limit = 15, search = "" } = req.body;
+const allMembersOverdueHistory = async (paginationCriteria) => {
+  const { page, limit, search } = paginationCriteria;
+  const sanitizedSearch = search.trim();
   try {
-    let allOverdueBooks = await BorrowMdl.find({
-      status: "borrowed",
-      dueDate: { $lt: helper.currentDateAndTime() },
-    }).populate([
-      { path: "bookId", select: "-_id title ISBN" },
-      { path: "userId", select: "-_id name email phone address" },
-    ]);
+    const query = {
+      $or: [
+        { "user.name": { $regex: sanitizedSearch, $options: "i" } },
+        { "user.email": { $regex: sanitizedSearch, $options: "i" } },
+        { "user.phone": { $regex: sanitizedSearch } },
+        { "book.title": { $regex: sanitizedSearch, $options: "i" } },
+        { "book.authors": { $regex: sanitizedSearch, $options: "i" } },
+        { "book.category": { $regex: sanitizedSearch, $options: "i" } },
+      ],
+    };
+    const options = {
+      limit: limit,
+      skip: (page - 1) * limit,
+    };
+    let allOverdueBooks = await BorrowMdl.aggregate(
+      [
+        { $match: { status: BORROW_STATUS.OVERDUE } },
+        {
+          $lookup: {
+            from: "books",
+            localField: "bookId",
+            foreignField: "_id",
+            as: "book",
+          },
+        },
+        { $unwind: "$book" },
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        { $unwind: "$user" },
+        { $match: query },
+        {
+          $project: {
+            _id: 1,
+            borrowDate: 1,
+            dueDate: 1,
+            returnDate: 1,
+            status: 1,
+            book: {
+              _id: "$book._id",
+              title: "$book.title",
+              authors: "$book.authors",
+              category: "$book.category",
+              ISBN: "$book.ISBN",
+            },
+            user: {
+              _id: "$user._id",
+              name: "$user.name",
+              email: "$user.email",
+              phone: "$user.phone",
+              address: "$user.address",
+            },
+            fine: 1,
+          },
+        },
+      ],
+      options
+    );
 
-    if (search.toLowerCase().replaceAll(" ", "")) {
-      allOverdueBooks = allOverdueBooks.filter((borrow) => {
-        if (
-          borrow.userId.name
-            .toLowerCase()
-            .replaceAll(" ", "")
-            .includes(search.toLowerCase().replaceAll(" ", ""))
-        ) {
-          return true;
-        }
-        if (
-          borrow.userId.email
-            .toLowerCase()
-            .replaceAll(" ", "")
-            .includes(search.toLowerCase().replaceAll(" ", ""))
-        ) {
-          return true;
-        }
-        if (
-          borrow.userId.phone
-            .toString()
-            .replaceAll(" ", "")
-            .includes(search.toLowerCase().replaceAll(" ", ""))
-        ) {
-          return true;
-        }
-      });
-    }
     if (allOverdueBooks.length === 0) {
       throw new Error("NO_OVERDUES");
     }
-    const startIndex = (page - 1) * limit;
-    const paginatedOverdues = allOverdueBooks.slice(
-      startIndex,
-      startIndex + limit
-    );
-    if (paginatedOverdues.length === 0) {
-      throw new Error("NO_MORE_DATA");
-    }
-    return paginatedOverdues;
+
+    return { history: allOverdueBooks };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -192,6 +215,6 @@ export default {
   borrowBook,
   returnBook,
   extendBorrowing,
-  history,
-  overdueHistory,
+  borrowHistory,
+  allMembersOverdueHistory,
 };

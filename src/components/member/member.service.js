@@ -4,29 +4,17 @@ import helper from "../../utils/helper.js";
 import { USER_ROLE } from "../../utils/constant.js";
 
 const addMember = async (reqBody) => {
-  const {
-    name,
-    email,
-    password,
-    confirm_password,
-    phone,
-    address,
-    role,
-    status,
-  } = reqBody;
+  const { name, email, password, phone, address, role, status } = reqBody;
 
   try {
     const emailExistCheck = await helper.emailExistingCheck(email);
 
     if (emailExistCheck) {
-      throw new Error("USER_EXIST");
+      throw new Error("EMAIL_EXIST");
     }
 
     const hashedPassword = helper.encryptPassword(password);
 
-    if (!helper.comparePassword(confirm_password, hashedPassword)) {
-      throw new Error("PASSWORD_NOT_SAME");
-    }
     const generateMembershipId = helper.generateMembershipId();
 
     const newMember = await UserMdl({
@@ -49,28 +37,41 @@ const addMember = async (reqBody) => {
   }
 };
 
-const allMembers = async () => {
+const allMembers = async (paginationCriteria) => {
+  const { page, limit, search } = paginationCriteria;
+  const sanitizedSearch = search.trim();
   try {
-    const allMembers = await UserMdl.find();
-
-    if (allMembers.length === 0) {
+    const query = {
+      $or: [
+        {
+          name: { $regex: sanitizedSearch, $options: "i" },
+        },
+        {
+          email: {
+            $regex: sanitizedSearch,
+            $options: "i",
+          },
+        },
+        {
+          phone: {
+            $regex: sanitizedSearch,
+          },
+        },
+      ],
+    };
+    const projection = "-password";
+    const options = {
+      limit: limit,
+      skip: (page - 1) * limit,
+    };
+    let filteredMembers = await UserMdl.find(query, projection, options);
+    if (filteredMembers.length === 0) {
       throw new Error("NO_MEMBER_FOUND");
     }
 
-    const members = allMembers.map((member) => {
-      return {
-        _id: member._id,
-        name: member.name,
-        email: member.email,
-        phone: member.phone,
-        address: member.address,
-        role: member.role,
-        membershipId: member.membershipId,
-        status: member.status,
-        createdAt: member.createdAt,
-      };
-    });
-    return { members };
+    return {
+      members: filteredMembers,
+    };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -83,6 +84,8 @@ const singleMember = async (req) => {
       throw new Error("INVALID_MEMBER_ID");
     }
     const memberData = await UserMdl.findById(memberId);
+    console.log(memberData);
+
     if (!memberData) {
       throw new Error("NO_MEMBER_FOUND");
     }
@@ -149,60 +152,85 @@ const updateMember = async (req) => {
   }
 };
 
-const viewHistory = async (req) => {
-  const { page = 1, limit = 10, search = " " } = req.body;
-  try {
-    let filteredBorrows = await BorrowMdl.find().populate([
-      {
-        path: "bookId",
-        select: "-_id title ISBN",
-      },
-      {
-        path: "userId",
-        select: "-_id name email phone address",
-      },
-    ]);
+const viewMembersBorrowHistory = async (paginationCriteria) => {
+  const { page, limit, search } = paginationCriteria;
+  const sanitizedSearch = search.trim();
 
-    if (search.toLowerCase().replaceAll(" ", "")) {
-      filteredBorrows = filteredBorrows.filter((borrow) => {
-        if (
-          borrow.userId.name
-            .toLowerCase()
-            .replaceAll(" ", "")
-            .includes(search.toLowerCase().replaceAll(" ", ""))
-        ) {
-          return true;
-        }
-        if (
-          borrow.userId.email
-            .toLowerCase()
-            .replaceAll(" ", "")
-            .includes(search.toLowerCase().replaceAll(" ", ""))
-        ) {
-          return true;
-        }
-        if (
-          borrow.userId.phone
-            .toString()
-            .replaceAll(" ", "")
-            .includes(search.toLowerCase().replaceAll(" ", ""))
-        ) {
-          return true;
-        }
-      });
-    }
-    if (filteredBorrows.length === 0) {
+  try {
+    const query = {
+      $or: [
+        { "user.name": { $regex: sanitizedSearch, $options: "i" } },
+        { "user.email": { $regex: sanitizedSearch, $options: "i" } },
+        { "user.phone": { $regex: sanitizedSearch } },
+        { "book.title": { $regex: sanitizedSearch, $options: "i" } },
+        { "book.authors": { $regex: sanitizedSearch, $options: "i" } },
+        { "book.category": { $regex: sanitizedSearch, $options: "i" } },
+        { status: { $regex: sanitizedSearch, $options: "i" } },
+      ],
+    };
+
+    const options = {
+      limit: limit,
+      skip: (page - 1) * limit,
+    };
+
+    // Perform the query with populate
+    let borrowHistory = await BorrowMdl.aggregate(
+      [
+        {
+          $lookup: {
+            from: "books",
+            localField: "bookId",
+            foreignField: "_id",
+            as: "book",
+          },
+        },
+        { $unwind: "$book" },
+        {
+          $lookup: {
+            from: "users",
+            localField: "userId",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        { $unwind: "$user" },
+        { $match: query },
+        {
+          $project: {
+            _id: 1,
+            borrowDate: 1,
+            dueDate: 1,
+            returnDate: 1,
+            status: 1,
+            book: {
+              _id: "$book._id",
+              title: "$book.title",
+              authors: "$book.authors",
+              category: "$book.category",
+              ISBN: "$book.ISBN",
+            },
+            user: {
+              _id: "$user._id",
+              name: "$user.name",
+              email: "$user.email",
+              phone: "$user.phone",
+              address: "$user.address",
+            },
+            fine: 1,
+          },
+        },
+      ],
+      options
+    );
+
+    if (borrowHistory.length === 0) {
       throw new Error("NO_HISTORY");
     }
-    const startIndex = (page - 1) * limit;
-    const paginatedBorrows = filteredBorrows.slice(
-      startIndex,
-      startIndex + limit
-    );
-    if (paginatedBorrows.length === 0) {
-      throw new Error("NO_MORE_DATA");
-    }
-    return paginatedBorrows;
+
+    return {
+      history: borrowHistory,
+    };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -224,6 +252,6 @@ export default {
   allMembers,
   singleMember,
   updateMember,
-  viewHistory,
+  viewMembersBorrowHistory,
   toggleAdmin,
 };

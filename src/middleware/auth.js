@@ -1,12 +1,13 @@
 import UserMdl from "../models/user.js";
 
-const userAuthenticate = async (req, res, next) => {
+const isUserLoggedIn = async (req, res, next) => {
   try {
-    const auth = req.session.user;
-    if (!auth) {
+    const userId = req.session.userId;
+    const userDetail = await UserMdl.findById(userId);
+    if (!userId) {
       return next(new Error("ACCESS_DENIED"));
     }
-    req.user = auth;
+    req.user = userDetail;
     next();
   } catch (err) {
     return next(new Error(err.message));
@@ -15,8 +16,8 @@ const userAuthenticate = async (req, res, next) => {
 
 const accessRole = (role) => {
   return async (req, res, next) => {
-    const userData = await UserMdl.findById(req.user._id);
-    if (!role.includes(userData.role)) {
+    const userRole = await UserMdl.findById(req.user._id, "-_id role");
+    if (!role.includes(userRole.role)) {
       return next(new Error("USER_UNAUTHORIZED"));
     }
     next();
@@ -25,7 +26,7 @@ const accessRole = (role) => {
 
 const memberStatusCheck = async (req, res, next) => {
   try {
-    const userFound = await UserMdl.findById(req.user._id);
+    const userFound = await UserMdl.findById(req.user._id, "status");
 
     if (userFound.status !== "active") {
       return next(new Error("ACCOUNT_INACTIVE"));
@@ -35,4 +36,4 @@ const memberStatusCheck = async (req, res, next) => {
     return next(new Error(err.message));
   }
 };
-export default { userAuthenticate, accessRole, memberStatusCheck };
+export default { isUserLoggedIn, accessRole, memberStatusCheck };

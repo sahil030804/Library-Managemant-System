@@ -10,7 +10,7 @@ const addMember = async (req, res, next) => {
 };
 const allMembers = async (req, res, next) => {
   try {
-    const allMembers = await memberService.allMembers();
+    const allMembers = await memberService.allMembers(req.body);
     res.status(200).json(allMembers);
   } catch (error) {
     next(error);
@@ -32,10 +32,10 @@ const updateMember = async (req, res, next) => {
     next(error);
   }
 };
-const viewHistory = async (req, res, next) => {
+const viewMembersBorrowHistory = async (req, res, next) => {
   try {
-    const history = await memberService.viewHistory(req);
-    res.status(200).json({ history });
+    const history = await memberService.viewMembersBorrowHistory(req.body);
+    res.status(200).json(history);
   } catch (error) {
     next(error);
   }
@@ -54,6 +54,6 @@ export default {
   allMembers,
   singleMember,
   updateMember,
-  viewHistory,
+  viewMembersBorrowHistory,
   toggleAdmin,
 };

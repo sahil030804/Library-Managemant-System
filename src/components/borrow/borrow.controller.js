@@ -25,18 +25,18 @@ const extendBorrowing = async (req, res, next) => {
     next(error);
   }
 };
-const history = async (req, res, next) => {
+const borrowHistory = async (req, res, next) => {
   try {
-    const history = await borrowService.history(req);
+    const history = await borrowService.borrowHistory(req);
     res.status(200).json({ history });
   } catch (error) {
     next(error);
   }
 };
-const overdueHistory = async (req, res, next) => {
+const allMembersOverdueHistory = async (req, res, next) => {
   try {
-    const history = await borrowService.overdueHistory(req);
-    res.status(200).json({ history });
+    const history = await borrowService.allMembersOverdueHistory(req.body);
+    res.status(200).json(history);
   } catch (error) {
     next(error);
   }
@@ -46,6 +46,6 @@ export default {
   borrowBook,
   returnBook,
   extendBorrowing,
-  history,
-  overdueHistory,
+  borrowHistory,
+  allMembersOverdueHistory,
 };

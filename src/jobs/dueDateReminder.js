@@ -3,20 +3,24 @@ import BorrowMdl from "../models/borrowing.js";
 import dueDateReminderTemplate from "../mailTemplates/reminderTemplate.js";
 import sendMail from "../utils/emailService.js";
 import env from "../config/index.js";
+import { DateTime } from "luxon";
 
 const dueDateReminder = new CronJob(
   env.job.DUE_DATE_REMINDER_SCHEDULE,
   async () => {
     try {
-      const tommorrow = new Date();
-      tommorrow.setDate(tommorrow.getDate() + 1);
-      tommorrow.setHours(0, 0, 0, 0);
-      const endOfTomorrow = new Date(tommorrow);
-      endOfTomorrow.setHours(23, 59, 59, 999);
+      const nextDay = DateTime.now().toFormat("yyyy-MM-dd");
 
       const allBorrows = await BorrowMdl.find({
         status: "borrowed",
-        dueDate: { $gte: tommorrow, $lte: endOfTomorrow },
+        $expr: {
+          $eq: [
+            {
+              $dateToString: { format: "%Y-%m-%d", date: "$dueDate" },
+            },
+            nextDay,
+          ],
+        },
       }).populate([
         {
           path: "bookId",
@@ -27,25 +31,33 @@ const dueDateReminder = new CronJob(
           select: "-_id name email",
         },
       ]);
-
       if (allBorrows.length === 0) {
-        dueDateReminder.stop();
+        return;
       }
+      const userBorrows = {};
       allBorrows.forEach((borrow) => {
-        const emailContent = dueDateReminderTemplate(
-          borrow.userId.name,
-          borrow.bookId.title,
-          borrow.dueDate.toDateString()
-        );
-        sendMail(
-          borrow.userId.email,
-          "Library Due Date Reminder",
-          "",
-          emailContent
-        );
+        const userEmail = borrow.userId.email;
+        if (!userBorrows[userEmail]) {
+          userBorrows[userEmail] = {
+            name: borrow.userId.name,
+            books: [],
+          };
+        }
+        userBorrows[userEmail].books.push({
+          title: borrow.bookId.title,
+          dueDate: borrow.dueDate.toDateString(),
+        });
       });
+
+      for (const [email, userInfo] of Object.entries(userBorrows)) {
+        const emailContent = dueDateReminderTemplate({
+          username: userInfo.name,
+          books: userInfo.books,
+        });
+        sendMail(email, "Library Due Date Reminder", "", emailContent);
+      }
     } catch (err) {
-      return new Error(err.message);
+      console.log(`Error during dueDateReminder Cron Job : ${err.message}`);
     }
   }
 );
