@@ -16,10 +16,14 @@ const registerUser = Joi.object({
     "string.min": "Password must be at least 6 characters long.",
     "string.max": "Password cannot exceed 18 characters.",
   }),
-  confirm_password: Joi.string().required().messages({
-    "string.empty": "Confirm Password cannot be empty.",
-    "any.required": "Confirm Password is required.",
-  }),
+  confirm_password: Joi.string()
+    .required()
+    .valid(Joi.ref("password"))
+    .messages({
+      "string.empty": "Confirm Password cannot be empty.",
+      "any.required": "Confirm Password is required.",
+      "any.only": "Confirm password must match with password",
+    }),
   phone: Joi.string()
     .required()
     .pattern(/^[0-9]{10}$/)
@@ -61,10 +65,14 @@ const resetPassword = Joi.object({
     "string.min": "New Password must be at least 6 characters long.",
     "string.max": "New Password cannot exceed 18 characters.",
   }),
-  confirm_password: Joi.string().required().messages({
-    "string.empty": "Confirm Password cannot be empty.",
-    "any.required": "Confirm Password is required.",
-  }),
+  confirm_password: Joi.string()
+    .required()
+    .valid(Joi.ref("new_password"))
+    .messages({
+      "string.empty": "Confirm Password cannot be empty.",
+      "any.required": "Confirm Password is required.",
+      "any.only": "Confirm password must match with new_password",
+    }),
 });
 
 export default {

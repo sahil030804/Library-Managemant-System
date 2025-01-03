@@ -7,11 +7,11 @@ const errorCodes = {
       message: "User not found.",
     },
   },
-  USER_EXIST: {
+  EMAIL_EXIST: {
     httpStatusCode: 409,
     body: {
-      code: "user_already_exist",
-      message: "User already exist.",
+      code: "email_already_exist",
+      message: "Email already exist.",
     },
   },
   INVALID_PASSWORD: {
@@ -76,13 +76,6 @@ const errorCodes = {
     body: {
       code: "user_unthorized",
       message: "User is unauthorized",
-    },
-  },
-  PASSWORD_NOT_SAME: {
-    httpStatusCode: 400,
-    body: {
-      code: "password_not_same",
-      message: "Password and Confirm password are not same",
     },
   },
   ACCOUNT_INACTIVE: {

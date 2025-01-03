@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { USER_ROLE, USER_STATUS } from "../../utils/constant.js";
 
 const addMember = Joi.object({
   name: Joi.string().required().messages({
@@ -15,12 +16,14 @@ const addMember = Joi.object({
     "string.min": "Password must be 6 character long",
     "string.max": "Password must be 18 character long",
   }),
-  confirm_password: Joi.string().required().min(6).max(18).messages({
-    "string.empty": "Confirm password can't be null",
-    "any.required": "Confirm password must be required",
-    "string.min": "Confirm password must be 6 character long",
-    "string.max": "Confirm password must be 18 character long",
-  }),
+  confirm_password: Joi.string()
+    .required()
+    .valid(Joi.ref("password"))
+    .messages({
+      "string.empty": "Confirm Password cannot be empty.",
+      "any.required": "Confirm Password is required.",
+      "any.only": "Confirm password must match with password",
+    }),
   phone: Joi.string()
     .required()
     .pattern(/^[0-9]{10}$/)
@@ -33,14 +36,24 @@ const addMember = Joi.object({
     "string.empty": "Name can't be null",
     "any.required": "name must be required",
   }),
-  role: Joi.string().empty().required().messages({
-    "string.empty": "Role can't be null",
-    "any.required": "Role must be required",
-  }),
-  status: Joi.string().empty().required().messages({
-    "string.empty": "Status can't be null",
-    "any.required": "Status must be required",
-  }),
+  role: Joi.string()
+    .empty()
+    .required()
+    .valid(USER_ROLE.ADMIN, USER_ROLE.MEMBER)
+    .messages({
+      "string.empty": "Role can't be null",
+      "any.required": "Role must be required",
+      "any.only": "User role must be either admin or member",
+    }),
+  status: Joi.string()
+    .empty()
+    .required()
+    .valid(USER_STATUS.ACTIVE, USER_STATUS.SUSPENDED)
+    .messages({
+      "string.empty": "Status can't be null",
+      "any.required": "Status must be required",
+      "any.only": "User status must be either active or suspended",
+    }),
 });
 const updateMember = Joi.object({
   name: Joi.string().required().messages({

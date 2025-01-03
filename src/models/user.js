@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
       default: "member",
     },
     phone: {
-      type: Number,
+      type: String,
       required: [true, "Phone is required (from DB)"],
     },
     address: {

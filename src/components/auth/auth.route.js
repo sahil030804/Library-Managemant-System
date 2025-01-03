@@ -19,7 +19,7 @@ router.post(
 router.post("/logout", authController.logoutUser);
 router.post(
   "/reset-password",
-  auth.userAuthenticate,
+  auth.isUserLoggedIn,
   validation.validate(authValidation.resetPassword),
   authController.resetPassword
 );

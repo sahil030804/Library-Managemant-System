@@ -45,9 +45,8 @@ const comparePassword = (plain, hashed) => {
 };
 
 const generateMembershipId = () => {
-  const timestamp = Date.now();
-  const randomdata = crypto.randomBytes(10).toString("hex");
-  return `MEM-${timestamp}-${randomdata}`;
+  const randomdata = crypto.randomBytes(5).toString("hex");
+  return `MEM-${randomdata}`;
 };
 
 const currentDateAndTime = () => {
