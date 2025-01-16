@@ -155,6 +155,9 @@ const updateMember = async (req) => {
 const viewMembersBorrowHistory = async (paginationCriteria) => {
   const { page, limit, search } = paginationCriteria;
   const sanitizedSearch = search.trim();
+  console.log(page);
+  console.log(limit);
+  console.log(search);
 
   try {
     const query = {
@@ -169,64 +172,61 @@ const viewMembersBorrowHistory = async (paginationCriteria) => {
       ],
     };
 
-    const options = {
-      limit: limit,
-      skip: (page - 1) * limit,
-    };
+    const skip = (page - 1) * limit;
 
     // Perform the query with populate
-    let borrowHistory = await BorrowMdl.aggregate(
-      [
-        {
-          $lookup: {
-            from: "books",
-            localField: "bookId",
-            foreignField: "_id",
-            as: "book",
-          },
+    let borrowHistory = await BorrowMdl.aggregate([
+      {
+        $lookup: {
+          from: "books",
+          localField: "bookId",
+          foreignField: "_id",
+          as: "book",
         },
-        { $unwind: "$book" },
-        {
-          $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "user",
-          },
+      },
+      { $unwind: "$book" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
         },
-        { $unwind: "$user" },
-        { $match: query },
-        {
-          $project: {
-            _id: 1,
-            borrowDate: 1,
-            dueDate: 1,
-            returnDate: 1,
-            status: 1,
-            book: {
-              _id: "$book._id",
-              title: "$book.title",
-              authors: "$book.authors",
-              category: "$book.category",
-              ISBN: "$book.ISBN",
-            },
-            user: {
-              _id: "$user._id",
-              name: "$user.name",
-              email: "$user.email",
-              phone: "$user.phone",
-              address: "$user.address",
-            },
-            fine: 1,
+      },
+      { $unwind: "$user" },
+      { $match: query },
+      {
+        $project: {
+          _id: 1,
+          borrowDate: 1,
+          dueDate: 1,
+          returnDate: 1,
+          status: 1,
+          book: {
+            _id: "$book._id",
+            title: "$book.title",
+            authors: "$book.authors",
+            category: "$book.category",
+            ISBN: "$book.ISBN",
           },
+          user: {
+            _id: "$user._id",
+            name: "$user.name",
+            email: "$user.email",
+            phone: "$user.phone",
+            address: "$user.address",
+          },
+          fine: 1,
         },
-      ],
-      options
-    );
+      },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
 
     if (borrowHistory.length === 0) {
       throw new Error("NO_HISTORY");
     }
+    console.log("history ", borrowHistory.length);
 
     return {
       history: borrowHistory,
