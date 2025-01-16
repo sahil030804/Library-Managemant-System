@@ -148,59 +148,56 @@ const allMembersOverdueHistory = async (paginationCriteria) => {
         { "book.category": { $regex: sanitizedSearch, $options: "i" } },
       ],
     };
-    const options = {
-      limit: limit,
-      skip: (page - 1) * limit,
-    };
-    let allOverdueBooks = await BorrowMdl.aggregate(
-      [
-        { $match: { status: BORROW_STATUS.OVERDUE } },
-        {
-          $lookup: {
-            from: "books",
-            localField: "bookId",
-            foreignField: "_id",
-            as: "book",
-          },
+    const skip = (page - 1) * limit;
+
+    let allOverdueBooks = await BorrowMdl.aggregate([
+      { $match: { status: BORROW_STATUS.OVERDUE } },
+      {
+        $lookup: {
+          from: "books",
+          localField: "bookId",
+          foreignField: "_id",
+          as: "book",
         },
-        { $unwind: "$book" },
-        {
-          $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "user",
-          },
+      },
+      { $unwind: "$book" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
         },
-        { $unwind: "$user" },
-        { $match: query },
-        {
-          $project: {
-            _id: 1,
-            borrowDate: 1,
-            dueDate: 1,
-            returnDate: 1,
-            status: 1,
-            book: {
-              _id: "$book._id",
-              title: "$book.title",
-              authors: "$book.authors",
-              category: "$book.category",
-              ISBN: "$book.ISBN",
-            },
-            user: {
-              _id: "$user._id",
-              name: "$user.name",
-              email: "$user.email",
-              phone: "$user.phone",
-              address: "$user.address",
-            },
-            fine: 1,
+      },
+      { $unwind: "$user" },
+      { $match: query },
+      {
+        $project: {
+          _id: 1,
+          borrowDate: 1,
+          dueDate: 1,
+          returnDate: 1,
+          status: 1,
+          book: {
+            _id: "$book._id",
+            title: "$book.title",
+            authors: "$book.authors",
+            category: "$book.category",
+            ISBN: "$book.ISBN",
           },
+          user: {
+            _id: "$user._id",
+            name: "$user.name",
+            email: "$user.email",
+            phone: "$user.phone",
+            address: "$user.address",
+          },
+          fine: 1,
         },
-      ],
-      options
-    );
+      },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
 
     if (allOverdueBooks.length === 0) {
       throw new Error("NO_OVERDUES");
