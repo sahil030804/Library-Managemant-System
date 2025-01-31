@@ -5,8 +5,8 @@ import errorHandler from "./src/middleware/errorHandler.js";
 import router from "./indexRoute.js";
 import session from "express-session";
 import cookieParser from "cookie-parser";
-import { createClient } from "redis";
 import { RedisStore } from "connect-redis";
+import redis from "./lib/redis.js";
 import cors from "cors";
 import fineCalculationJob from "./src/jobs/fineCalculation.js";
 import dueDateReminder from "./src/jobs/dueDateReminder.js";
@@ -31,26 +31,13 @@ app.use(
 
 app.use(express.json());
 
-const client = createClient({
-  username: env.redis.REDIS_USERNAME,
-  password: env.redis.REDIS_PASSWORD,
-  socket: {
-    host: env.redis.REDIS_HOST,
-    port: env.redis.REDIS_PORT,
-  },
-});
-client.on("error", (err) => console.log("Redis Client Error", err));
-client.on("connect", () => console.log("Redis Server Connected"));
-
-await client.connect();
-
 app.use(
   session({
     secret: env.server.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: false,
     cookie: { httpOnly: true, secure: false, maxAge: 24 * 60 * 60 * 1000 },
-    store: new RedisStore({ client }),
+    store: new RedisStore({ client: await redis.createClient() }),
   })
 );
 

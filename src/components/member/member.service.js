@@ -145,8 +145,19 @@ const updateMember = async (req) => {
         { new: true }
       );
     }
-
-    return { message: `Updated successfully` };
+    console.log(updateMember);
+    const result = {
+      _id: updateMember._id,
+      name: updateMember.name,
+      email: updateMember.email,
+      role: updateMember.role,
+      phone: updateMember.phone,
+      address: updateMember.address,
+      membershipId: updateMember.membershipId,
+      status: updateMember.status,
+      createdAt: updateMember.createdAt,
+    };
+    return { message: `Updated successfully`, userDetail: result };
   } catch (err) {
     throw new Error(err.message);
   }
