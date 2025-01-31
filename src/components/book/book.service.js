@@ -1,5 +1,6 @@
 import BookMdl from "../../models/book.js";
 import helper from "../../utils/helper.js";
+import redisHelper from "../../utils/redisHelper.js";
 
 const addBook = async (reqBody) => {
   const {
@@ -55,6 +56,8 @@ const addBook = async (reqBody) => {
 
 const updateBook = async (req) => {
   const bookId = req.params.id;
+
+  const bookKey = `BookList:Book:${bookId}`;
   const {
     title,
     authors,
@@ -81,7 +84,7 @@ const updateBook = async (req) => {
     bookFound.availableCopies + (totalCopies - bookFound.totalCopies),
     0
   );
-  await BookMdl.findByIdAndUpdate(
+  const book = await BookMdl.findByIdAndUpdate(
     bookId,
     {
       title,
@@ -97,12 +100,14 @@ const updateBook = async (req) => {
     { new: true }
   );
 
+  await redisHelper.setBookData(bookKey, book);
+
   return { message: "Book updated successfully" };
 };
 
 const removeBook = async (req) => {
   const bookId = req.params.id;
-
+  const bookKey = `BookList:Book:${bookId}`;
   try {
     if (bookId.length !== 24) {
       throw new Error("INVALID_BOOK_ID");
@@ -112,6 +117,7 @@ const removeBook = async (req) => {
       throw new Error("BOOK_NOT_FOUND");
     }
     const bookDeleted = await BookMdl.deleteOne({ _id: bookId });
+    await redisHelper.deleteBookData(bookKey);
 
     if (!bookDeleted.deletedCount == 1) {
       throw new Error("BOOK_NOT_DELETE");
@@ -166,15 +172,22 @@ const getAllBooks = async (paginationCriteria) => {
 
 const getSingleBook = async (req) => {
   const bookId = req.params.id;
+  const bookKey = `BookList:Book:${bookId}`;
   try {
     if (bookId.length !== 24) {
       throw new Error("INVALID_BOOK_ID");
+    }
+    const data = await redisHelper.getBookData(bookKey);
+
+    if (data) {
+      return { message: "fetch from redis cache", book: data };
     }
     const book = await BookMdl.findById(bookId);
     if (!book) {
       throw new Error("BOOK_NOT_FOUND");
     }
-    return { book };
+    await redisHelper.setBookData(bookKey, book);
+    return { message: "fetch from database", book };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -198,6 +211,8 @@ const searchBook = async (req) => {
     if (searchedBook.length === 0) {
       throw new Error("BOOK_NOT_FOUND");
     }
+    const bookKey = `BookList:Book:${searchedBook._id}`;
+    await redisHelper.setBookData(bookKey, searchedBook);
     return { searchedBook };
   } catch (err) {
     throw new Error(err.message);
