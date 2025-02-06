@@ -14,4 +14,8 @@ const BORROW_STATUS = {
   OVERDUE: "overdue",
 };
 
-export { USER_STATUS, USER_ROLE, BORROW_STATUS };
+const VALID_FILETYPES = {
+  CSV: "text/csv",
+};
+
+export { USER_STATUS, USER_ROLE, BORROW_STATUS, VALID_FILETYPES };

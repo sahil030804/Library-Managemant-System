@@ -1,11 +1,24 @@
 import express from "express";
+import multer from "multer";
 import bookController from "./book.controller.js";
 import bookValidation from "./book.validation.js";
 import paginationValidate from "../../utils/validation.js";
 import validation from "../../middleware/validation.js";
 import auth from "../../middleware/auth.js";
-import { USER_ROLE } from "../../utils/constant.js";
+import { USER_ROLE, VALID_FILETYPES } from "../../utils/constant.js";
 import borrowController from "../borrow/borrow.controller.js";
+
+//Multer for upload file
+const importUpload = multer({
+  fileFilter: (req, file, cb) => {
+    if (Object.values(VALID_FILETYPES).includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("INVALID_FILETYPE"), false);
+    }
+  },
+  dest: "CSV_Files/imports/",
+});
 
 const router = express.Router();
 
@@ -50,6 +63,14 @@ router.post(
   bookController.getAllbooks
 );
 router.get("/:id", bookController.getSinglebook);
+
+router.post(
+  "/import",
+  auth.isUserLoggedIn,
+  auth.accessRole([USER_ROLE.ADMIN]),
+  importUpload.single("file"),
+  bookController.importCSV
+);
 
 router.post(
   "/borrow",

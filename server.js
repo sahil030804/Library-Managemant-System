@@ -10,6 +10,8 @@ import redis from "./lib/redis.js";
 import cors from "cors";
 import fineCalculationJob from "./src/jobs/fineCalculation.js";
 import dueDateReminder from "./src/jobs/dueDateReminder.js";
+import queueHelper from "./src/utils/queueHelper.js";
+import worker from "./lib/worker.js";
 
 mongoose
   .connect(env.db.DB_URL)
@@ -30,6 +32,12 @@ app.use(
 );
 
 app.use(express.json());
+
+//Bull mq dashboard
+app.use("/admin/queues", queueHelper.serverAdapter.getRouter());
+
+//Run worker for complete job
+console.log(`Worker is running correctly`, worker.importWorker.isRunning());
 
 app.use(
   session({

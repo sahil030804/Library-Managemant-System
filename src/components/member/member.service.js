@@ -166,9 +166,6 @@ const updateMember = async (req) => {
 const viewMembersBorrowHistory = async (paginationCriteria) => {
   const { page, limit, search } = paginationCriteria;
   const sanitizedSearch = search.trim();
-  console.log(page);
-  console.log(limit);
-  console.log(search);
 
   try {
     const query = {
@@ -237,9 +234,12 @@ const viewMembersBorrowHistory = async (paginationCriteria) => {
     if (borrowHistory.length === 0) {
       throw new Error("NO_HISTORY");
     }
-    console.log("history ", borrowHistory.length);
 
+    const totalBooks = borrowHistory.length;
+    const totalPages = Math.ceil(totalBooks / limit);
     return {
+      totalBooks: totalBooks,
+      totalPages: totalPages,
       history: borrowHistory,
     };
   } catch (err) {
