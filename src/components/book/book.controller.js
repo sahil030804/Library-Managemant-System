@@ -52,6 +52,21 @@ const searchBook = async (req, res, next) => {
   }
 };
 
+const importCSV = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw new Error("No file uploaded");
+    }
+    const result = await bookService.importCSV(req.file);
+    if (result.errors && result.errors.length > 0) {
+      return res.status(400).json(result);
+    }
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   addBook,
   updateBook,
@@ -59,4 +74,5 @@ export default {
   getAllbooks,
   getSinglebook,
   searchBook,
+  importCSV,
 };

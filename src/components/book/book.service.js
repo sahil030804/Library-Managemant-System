@@ -1,6 +1,10 @@
 import BookMdl from "../../models/book.js";
+import path from "path";
 import helper from "../../utils/helper.js";
 import redisHelper from "../../utils/redisHelper.js";
+import queueHelper from "../../utils/queueHelper.js";
+import fs from "fs";
+import csv from "fast-csv";
 
 const addBook = async (reqBody) => {
   const {
@@ -219,6 +223,163 @@ const searchBook = async (req) => {
   }
 };
 
+const requiredHeaders = [
+  "ISBN",
+  "title",
+  "authors",
+  "category",
+  "publicationYear",
+  "totalCopies",
+  "shelfNumber",
+];
+
+const importCSV = async (file) => {
+  try {
+    const __dirname = path.dirname(import.meta.dirname);
+    const filePath = path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "CSV_Files",
+      "imports",
+      file.filename
+    );
+
+    let errors = []; //store error
+    const rows = [];
+
+    let rowNumber = 0;
+
+    await new Promise((resolve, reject) => {
+      const parser = csv.parse({ headers: true });
+      // const processRow = async (row) => {
+      //   console.log(`row `, typeof row);
+
+      //   try {
+      //     // ISBN validation
+      //     if (!row.ISBN) {
+      //       errors.push(`ROW ,ISBN must be Required`);
+      //     } else if (!/^(97[89])(-\d{1,5}){4}$/.test(row.ISBN)) {
+      //       errors.push(
+      //         `ROW ${rowNumber},ISBN must be a number, found: ${row.ISBN}`
+      //       );
+      //     } else {
+      //       const CheckISBNDuplicate = await helper.bookExistingCheck(row.ISBN);
+
+      //       if (CheckISBNDuplicate) {
+      //         errors.push(
+      //           `ROW ${rowNumber},Book is already exist with ISBN ${row.ISBN}`
+      //         );
+      //       }
+      //     }
+
+      //     // Publication year validation
+      //     if (!row.publicationYear) {
+      //       errors.push(`ROW ${rowNumber}, Publication year must be Required`);
+      //     } else if (!/^\d{4}$/.test(row.publicationYear)) {
+      //       errors.push(
+      //         `ROW ${rowNumber},Publication year must be 4 digit long, found: ${row.publicationYear}`
+      //       );
+      //     }
+      //   } catch (error) {
+      //     errors.push(`Error processing row: ${error.message}`);
+      //   }
+      // };
+
+      fs.createReadStream(filePath)
+        .pipe(parser)
+        .on("headers", (headers) => {
+          requiredHeaders.forEach((header) => {
+            if (!headers.includes(header)) {
+              errors.push({
+                row: 1, // This will be index of the array. So we have increase it by "1" to match actual row number.
+                column: header,
+                error: `"${header}" column name is missing in the CSV file.`,
+              });
+            }
+          });
+        })
+        .on("data", async (data) => {
+          rowNumber++;
+          const currentRowNumber = rowNumber;
+
+          // console.log(`row ${currentRowNumber} read start`);
+
+          try {
+            // ISBN validation
+            if (!data.ISBN) {
+              errors.push({
+                row: currentRowNumber,
+                column: `ISBN`,
+                error: `ISBN is required`,
+              });
+            } else if (!/^(97[89])(-\d{1,5}){4}$/.test(data.ISBN)) {
+              errors.push({
+                row: currentRowNumber,
+                column: `ISBN`,
+                error: `Row ${currentRowNumber}: Invalid ISBN format, found: ${data.ISBN}`,
+              });
+            } else {
+              const isISBNDuplicate = await helper.bookExistingCheck(data.ISBN);
+              if (isISBNDuplicate) {
+                errors.push({
+                  row: currentRowNumber,
+                  column: `ISBN`,
+                  error: `Row ${currentRowNumber}: Book already exists with ISBN ${data.ISBN}`,
+                });
+              }
+            }
+
+            // Publication year validation
+            if (!data.publicationYear) {
+              errors.push({
+                row: currentRowNumber,
+                column: `Publication year`,
+                error: `Row ${currentRowNumber}: Publication year is required`,
+              });
+            } else if (!/^\d{4}$/.test(data.publicationYear)) {
+              errors.push({
+                row: currentRowNumber,
+                column: `Publication year`,
+                error: `Row ${currentRowNumber}: Publication year must be 4 digits, found: ${data.publicationYear}`,
+              });
+            }
+          } catch (error) {
+            errors.push({
+              row: currentRowNumber,
+              column: `Publication year`,
+              error: `Row ${currentRowNumber}: Error processing row - ${error.message}`,
+            });
+          }
+        })
+        .on("error", (error) => {
+          errors.push(`File Error: ${error.message}`);
+          reject(error);
+        })
+        .on("end", async () => {
+          await new Promise((resolveRows) => setTimeout(resolveRows, 100)); //gpt logic , still studying
+          resolve();
+        });
+    });
+
+    if (errors.length > 0) {
+      return {
+        code: "Validation_Error",
+        errors,
+      };
+    } else {
+      const job = await queueHelper.queues.addImportJob(filePath);
+      return {
+        message: "Adding books data to database once its done!",
+        jobId: job.id,
+        totalRows: rowNumber,
+      };
+    }
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
 export default {
   addBook,
   updateBook,
@@ -226,4 +387,5 @@ export default {
   getAllBooks,
   getSingleBook,
   searchBook,
+  importCSV,
 };

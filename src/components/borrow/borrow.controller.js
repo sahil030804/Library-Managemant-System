@@ -28,7 +28,7 @@ const extendBorrowing = async (req, res, next) => {
 const borrowHistory = async (req, res, next) => {
   try {
     const history = await borrowService.borrowHistory(req);
-    res.status(200).json({ history });
+    res.status(200).json(history);
   } catch (error) {
     next(error);
   }

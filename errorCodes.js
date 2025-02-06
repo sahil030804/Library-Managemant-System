@@ -210,6 +210,15 @@ const errorCodes = {
       message: "Book already returned",
     },
   },
+
+  //Import Export
+  INVALID_FILETYPE: {
+    httpStatusCode: 400,
+    body: {
+      code: "invalid_filetype",
+      message: "Only CSV files are allowed",
+    },
+  },
 };
 
 export default errorCodes;
