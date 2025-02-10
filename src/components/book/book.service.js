@@ -246,45 +246,11 @@ const importCSV = async (file) => {
     );
 
     let errors = []; //store error
-    const rows = [];
 
-    let rowNumber = 0;
-
+    let rowNumber = 1;
+    let processingPromises = []; //store processed promise of row validation[GPT]
     await new Promise((resolve, reject) => {
       const parser = csv.parse({ headers: true });
-      // const processRow = async (row) => {
-      //   console.log(`row `, typeof row);
-
-      //   try {
-      //     // ISBN validation
-      //     if (!row.ISBN) {
-      //       errors.push(`ROW ,ISBN must be Required`);
-      //     } else if (!/^(97[89])(-\d{1,5}){4}$/.test(row.ISBN)) {
-      //       errors.push(
-      //         `ROW ${rowNumber},ISBN must be a number, found: ${row.ISBN}`
-      //       );
-      //     } else {
-      //       const CheckISBNDuplicate = await helper.bookExistingCheck(row.ISBN);
-
-      //       if (CheckISBNDuplicate) {
-      //         errors.push(
-      //           `ROW ${rowNumber},Book is already exist with ISBN ${row.ISBN}`
-      //         );
-      //       }
-      //     }
-
-      //     // Publication year validation
-      //     if (!row.publicationYear) {
-      //       errors.push(`ROW ${rowNumber}, Publication year must be Required`);
-      //     } else if (!/^\d{4}$/.test(row.publicationYear)) {
-      //       errors.push(
-      //         `ROW ${rowNumber},Publication year must be 4 digit long, found: ${row.publicationYear}`
-      //       );
-      //     }
-      //   } catch (error) {
-      //     errors.push(`Error processing row: ${error.message}`);
-      //   }
-      // };
 
       fs.createReadStream(filePath)
         .pipe(parser)
@@ -303,78 +269,114 @@ const importCSV = async (file) => {
           rowNumber++;
           const currentRowNumber = rowNumber;
 
-          // console.log(`row ${currentRowNumber} read start`);
-
-          try {
-            // ISBN validation
-            if (!data.ISBN) {
-              errors.push({
-                row: currentRowNumber,
-                column: `ISBN`,
-                error: `ISBN is required`,
-              });
-            } else if (!/^(97[89])(-\d{1,5}){4}$/.test(data.ISBN)) {
-              errors.push({
-                row: currentRowNumber,
-                column: `ISBN`,
-                error: `Row ${currentRowNumber}: Invalid ISBN format, found: ${data.ISBN}`,
-              });
-            } else {
-              const isISBNDuplicate = await helper.bookExistingCheck(data.ISBN);
-              if (isISBNDuplicate) {
+          const processRow = async () => {
+            try {
+              // ISBN validation
+              if (!data.ISBN) {
                 errors.push({
                   row: currentRowNumber,
                   column: `ISBN`,
-                  error: `Row ${currentRowNumber}: Book already exists with ISBN ${data.ISBN}`,
+                  error: `ISBN is required`,
+                });
+              } else if (!/^(97[89])(-\d{1,5}){4}$/.test(data.ISBN)) {
+                errors.push({
+                  row: currentRowNumber,
+                  column: `ISBN`,
+                  error: `Row ${currentRowNumber}: Invalid ISBN format, found: ${data.ISBN}`,
+                });
+              } else {
+                const isISBNDuplicate = await helper.bookExistingCheck(
+                  data.ISBN
+                );
+                if (isISBNDuplicate) {
+                  errors.push({
+                    row: currentRowNumber,
+                    column: `ISBN`,
+                    error: `Row ${currentRowNumber}: Book already exists with ISBN ${data.ISBN}`,
+                  });
+                }
+              }
+
+              // Publication year validation
+              if (!data.publicationYear) {
+                errors.push({
+                  row: currentRowNumber,
+                  column: `Publication year`,
+                  error: `Row ${currentRowNumber}: Publication year is required`,
+                });
+              } else if (!/^\d{4}$/.test(data.publicationYear)) {
+                errors.push({
+                  row: currentRowNumber,
+                  column: `Publication year`,
+                  error: `Row ${currentRowNumber}: Publication year must be 4 digits, found: ${data.publicationYear}`,
                 });
               }
+            } catch (error) {
+              errors.push({
+                row: currentRowNumber,
+                column: `Processing`,
+                error: `Row ${currentRowNumber}: Error processing row - ${error.message}`,
+              });
             }
+          };
 
-            // Publication year validation
-            if (!data.publicationYear) {
-              errors.push({
-                row: currentRowNumber,
-                column: `Publication year`,
-                error: `Row ${currentRowNumber}: Publication year is required`,
-              });
-            } else if (!/^\d{4}$/.test(data.publicationYear)) {
-              errors.push({
-                row: currentRowNumber,
-                column: `Publication year`,
-                error: `Row ${currentRowNumber}: Publication year must be 4 digits, found: ${data.publicationYear}`,
-              });
-            }
-          } catch (error) {
-            errors.push({
-              row: currentRowNumber,
-              column: `Publication year`,
-              error: `Row ${currentRowNumber}: Error processing row - ${error.message}`,
-            });
-          }
+          processingPromises.push(processRow()); // Store the promise for this row[GPT]
         })
         .on("error", (error) => {
           errors.push(`File Error: ${error.message}`);
           reject(error);
         })
         .on("end", async () => {
-          await new Promise((resolveRows) => setTimeout(resolveRows, 100)); //gpt logic , still studying
+          errors.sort((a, b) => {
+            return a.row - b.row;
+          });
+          await Promise.all(processingPromises); //stop exection for all promise to be proccess [GPT]
           resolve();
         });
     });
 
     if (errors.length > 0) {
+      fs.unlink(filePath, (err) => {
+        if (err) throw err;
+        console.log(`File deleted successfully`);
+      });
       return {
         code: "Validation_Error",
         errors,
       };
     } else {
-      const job = await queueHelper.queues.addImportJob(filePath);
+      const job = await queueHelper.queues.addImportJob(filePath, rowNumber);
       return {
         message: "Adding books data to database once its done!",
         jobId: job.id,
         totalRows: rowNumber,
       };
     }
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+const exportCSV = async () => {
+  const timestamp = Date.now();
+
+  try {
+    const __dirname = path.dirname(import.meta.dirname);
+
+    const filePath = path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "CSV_Files",
+      "exports",
+      `${timestamp}.csv`
+    );
+
+    const job = await queueHelper.queues.addExportJob(filePath);
+    return {
+      message: "Data send to queue for export",
+      jobId: job.id,
+    };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -388,4 +390,5 @@ export default {
   getSingleBook,
   searchBook,
   importCSV,
+  exportCSV,
 };

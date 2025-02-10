@@ -67,6 +67,15 @@ const importCSV = async (req, res, next) => {
   }
 };
 
+const exportCSV = async (req, res, next) => {
+  try {
+    const result = await bookService.exportCSV();
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   addBook,
   updateBook,
@@ -75,4 +84,5 @@ export default {
   getSinglebook,
   searchBook,
   importCSV,
+  exportCSV,
 };

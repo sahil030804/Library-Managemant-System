@@ -37,7 +37,14 @@ app.use(express.json());
 app.use("/admin/queues", queueHelper.serverAdapter.getRouter());
 
 //Run worker for complete job
-console.log(`Worker is running correctly`, worker.importWorker.isRunning());
+console.log(
+  `Import worker is running correctly`,
+  worker.importWorker.isRunning()
+);
+console.log(
+  `Export worker is running correctly`,
+  worker.exportWoker.isRunning()
+);
 
 app.use(
   session({
