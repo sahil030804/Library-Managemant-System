@@ -16,5 +16,32 @@ const checkImportStatus = async (jobId) => {
     throw new Error(err.message);
   }
 };
+const checkExportStatus = async (jobId) => {
+  try {
+    const job = await queueHelper.exportQueue.getJob(jobId);
+    if (!job) {
+      throw new Error(`Job not found for id ${jobId}`);
+    }
+    const result = {
+      status: await job.getState(),
+      progress: job.progress,
+    };
 
-export default { checkImportStatus };
+    return { status: result };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+const downloadExportFile = async (jobId) => {
+  try {
+    const job = await queueHelper.exportQueue.getJob(jobId);
+    if (!job) {
+      throw new Error(`Job not found for id ${jobId}`);
+    }
+    return { link: job.data.filePath };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+export default { checkImportStatus, checkExportStatus, downloadExportFile };

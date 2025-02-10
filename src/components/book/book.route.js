@@ -64,12 +64,19 @@ router.post(
 );
 router.get("/:id", bookController.getSinglebook);
 
+//IMPORT / EXPORT books
 router.post(
   "/import",
   auth.isUserLoggedIn,
   auth.accessRole([USER_ROLE.ADMIN]),
   importUpload.single("file"),
   bookController.importCSV
+);
+router.post(
+  "/export",
+  auth.isUserLoggedIn,
+  auth.accessRole([USER_ROLE.ADMIN]),
+  bookController.exportCSV
 );
 
 router.post(

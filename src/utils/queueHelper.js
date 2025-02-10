@@ -12,29 +12,64 @@ const importQueue = new Queue("importBooksQueue", {
   },
 });
 
+const exportQueue = new Queue("exportBooksQueue", {
+  connection: {
+    host: config.redis.REDIS_HOST,
+    port: config.redis.REDIS_PORT,
+    password: config.redis.REDIS_PASSWORD,
+  },
+});
+
+//import logs
 importQueue.on("waiting", ({ id }) => {
-  console.log(`Job ${id} is waiting in the queue`);
+  console.log(`import Job ${id} is waiting in the queue`);
 });
 
 importQueue.on("failed", ({ id, failedReason }) => {
-  console.error(`Job ${id} failed due to: ${failedReason}`);
+  console.error(`import Job ${id} failed due to: ${failedReason}`);
 });
 
 importQueue.on("completed", ({ id }) => {
-  console.log(`Job ${id} completed`);
+  console.log(`import Job ${id} completed`);
 });
 
 importQueue.on("paused", ({ id }) => {
-  console.log(`Job ${id} paused`);
+  console.log(`import Job ${id} paused`);
 });
+
+//export logs
+exportQueue.on("waiting", ({ id }) => {
+  console.log(`export Job ${id} is waiting in the queue`);
+});
+
+exportQueue.on("failed", ({ id, failedReason }) => {
+  console.error(`export Job ${id} failed due to: ${failedReason}`);
+});
+
+exportQueue.on("completed", ({ id }) => {
+  console.log(`export Job ${id} completed`);
+});
+
+exportQueue.on("paused", ({ id }) => {
+  console.log(`export Job ${id} paused`);
+});
+
 class Queues {
-  async addImportJob(filePath) {
+  async addImportJob(filePath, totalRows) {
     const job = await importQueue.add(
       "importBooksJob",
-      { filePath },
+      { filePath, totalRows },
       { attempts: 3 }
     );
 
+    return job;
+  }
+  async addExportJob(filePath, filter) {
+    const job = await exportQueue.add(
+      "exportBooksJob",
+      { filter, filePath },
+      { attempts: 3 }
+    );
     return job;
   }
 }
@@ -44,10 +79,10 @@ serverAdapter.setBasePath("/admin/queues");
 
 // Initialize Bull-Board with BullMQ
 createBullBoard({
-  queues: [new BullMQAdapter(importQueue)], // ✅ Fix: Use BullMQAdapter
+  queues: [new BullMQAdapter(importQueue), new BullMQAdapter(exportQueue)], // ✅ Fix: Use BullMQAdapter
   serverAdapter,
 });
 
 const queues = new Queues();
 
-export default { queues, serverAdapter, importQueue };
+export default { queues, serverAdapter, importQueue, exportQueue };
