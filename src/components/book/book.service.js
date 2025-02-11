@@ -278,7 +278,7 @@ const importCSV = async (file) => {
                   column: `ISBN`,
                   error: `ISBN is required`,
                 });
-              } else if (!/^(97[89])(-\d{1,5}){4}$/.test(data.ISBN)) {
+              } else if (!/^(?:97[89])(?:-[0-9]{1,5}){3}-[0-9]$/.test(data.ISBN)) {
                 errors.push({
                   row: currentRowNumber,
                   column: `ISBN`,
