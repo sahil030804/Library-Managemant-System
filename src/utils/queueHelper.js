@@ -59,7 +59,8 @@ class Queues {
     const job = await importQueue.add(
       "importBooksJob",
       { filePath, totalRows },
-      { attempts: 3 }
+
+      { attempts: 1, removeOnComplete: true, removeOnFail: 5 }
     );
 
     return job;
@@ -68,7 +69,7 @@ class Queues {
     const job = await exportQueue.add(
       "exportBooksJob",
       { filter, filePath },
-      { attempts: 3 }
+      { attempts: 1, removeOnComplete: true, removeOnFail: 5 }
     );
     return job;
   }
