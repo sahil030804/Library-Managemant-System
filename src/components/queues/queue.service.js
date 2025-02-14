@@ -9,9 +9,10 @@ const checkImportStatus = async (jobId) => {
     const result = {
       status: await job.getState(),
       progress: job.progress,
+      errors: job.data.errors,
     };
 
-    return { status: result };
+    return { job: result };
   } catch (err) {
     throw new Error(err.message);
   }

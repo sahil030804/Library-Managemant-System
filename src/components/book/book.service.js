@@ -245,113 +245,28 @@ const importCSV = async (file) => {
       file.filename
     );
 
-    let errors = []; //store error
-
     let rowNumber = 1;
-    let processingPromises = []; //store processed promise of row validation[GPT]
     await new Promise((resolve, reject) => {
       const parser = csv.parse({ headers: true });
 
       fs.createReadStream(filePath)
         .pipe(parser)
-        .on("headers", (headers) => {
-          requiredHeaders.forEach((header) => {
-            if (!headers.includes(header)) {
-              errors.push({
-                row: 1, // This will be index of the array. So we have increase it by "1" to match actual row number.
-                column: header,
-                error: `"${header}" column name is missing in the CSV file.`,
-              });
-            }
-          });
-        })
         .on("data", async (data) => {
           rowNumber++;
-          const currentRowNumber = rowNumber;
-
-          const processRow = async () => {
-            try {
-              // ISBN validation
-              if (!data.ISBN) {
-                errors.push({
-                  row: currentRowNumber,
-                  column: `ISBN`,
-                  error: `ISBN is required`,
-                });
-              } else if (!/^(?:97[89])(?:-[0-9]{1,5}){3}-[0-9]$/.test(data.ISBN)) {
-                errors.push({
-                  row: currentRowNumber,
-                  column: `ISBN`,
-                  error: `Row ${currentRowNumber}: Invalid ISBN format, found: ${data.ISBN}`,
-                });
-              } else {
-                const isISBNDuplicate = await helper.bookExistingCheck(
-                  data.ISBN
-                );
-                if (isISBNDuplicate) {
-                  errors.push({
-                    row: currentRowNumber,
-                    column: `ISBN`,
-                    error: `Row ${currentRowNumber}: Book already exists with ISBN ${data.ISBN}`,
-                  });
-                }
-              }
-
-              // Publication year validation
-              if (!data.publicationYear) {
-                errors.push({
-                  row: currentRowNumber,
-                  column: `Publication year`,
-                  error: `Row ${currentRowNumber}: Publication year is required`,
-                });
-              } else if (!/^\d{4}$/.test(data.publicationYear)) {
-                errors.push({
-                  row: currentRowNumber,
-                  column: `Publication year`,
-                  error: `Row ${currentRowNumber}: Publication year must be 4 digits, found: ${data.publicationYear}`,
-                });
-              }
-            } catch (error) {
-              errors.push({
-                row: currentRowNumber,
-                column: `Processing`,
-                error: `Row ${currentRowNumber}: Error processing row - ${error.message}`,
-              });
-            }
-          };
-
-          processingPromises.push(processRow()); // Store the promise for this row[GPT]
         })
         .on("error", (error) => {
-          errors.push(`File Error: ${error.message}`);
           reject(error);
         })
         .on("end", async () => {
-          errors.sort((a, b) => {
-            return a.row - b.row;
-          });
-          await Promise.all(processingPromises); //stop exection for all promise to be proccess [GPT]
           resolve();
         });
     });
-
-    if (errors.length > 0) {
-      fs.unlink(filePath, (err) => {
-        if (err) throw err;
-        console.log(`File deleted successfully`);
-      });
-      return {
-        code: "Validation_Error",
-        errors,
-      };
-    } else {
-      const job = await queueHelper.queues.addImportJob(filePath, rowNumber);
-      return {
-        message: "Adding books data to database once its done!",
-        jobId: job.id,
-        totalRows: rowNumber,
-      };
-    }
+    const job = await queueHelper.queues.addImportJob(filePath, rowNumber);
+    return {
+      message: "Adding books data to database once its done!",
+      jobId: job.id,
+      totalRows: rowNumber,
+    };
   } catch (err) {
     throw new Error(err.message);
   }
