@@ -15,6 +15,7 @@
     "@bull-board/api": "^6.7.4",
     "@bull-board/express": "^6.7.4",
     "@bull-board/ui": "^6.7.4",
+    "@faker-js/faker": "^9.5.0",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.40.0",
     "connect-redis": "^8.0.1",

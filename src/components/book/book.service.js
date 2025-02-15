@@ -223,15 +223,7 @@ const searchBook = async (req) => {
   }
 };
 
-const requiredHeaders = [
-  "ISBN",
-  "title",
-  "authors",
-  "category",
-  "publicationYear",
-  "totalCopies",
-  "shelfNumber",
-];
+
 
 const importCSV = async (file) => {
   try {
@@ -247,7 +239,7 @@ const importCSV = async (file) => {
 
     let rowNumber = 1;
     await new Promise((resolve, reject) => {
-      const parser = csv.parse({ headers: true });
+      const parser = csv.parse({ headers: false });
 
       fs.createReadStream(filePath)
         .pipe(parser)
@@ -258,6 +250,8 @@ const importCSV = async (file) => {
           reject(error);
         })
         .on("end", async () => {
+          rowNumber = 1
+
           resolve();
         });
     });

@@ -44,6 +44,6 @@ const generateBookCsv = (length) => {
 };
 console.log(faker.date.anytime());
 
-generateBookCsv(50);
+generateBookCsv(2000);
 
 export default { generateBookCsv };
