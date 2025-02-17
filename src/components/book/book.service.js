@@ -237,9 +237,9 @@ const importCSV = async (file) => {
       file.filename
     );
 
-    let rowNumber = 1;
+    let rowNumber = 0;
     await new Promise((resolve, reject) => {
-      const parser = csv.parse({ headers: false });
+      const parser = csv.parse({ headers: true });
 
       fs.createReadStream(filePath)
         .pipe(parser)
@@ -250,8 +250,6 @@ const importCSV = async (file) => {
           reject(error);
         })
         .on("end", async () => {
-          rowNumber = 1
-
           resolve();
         });
     });
